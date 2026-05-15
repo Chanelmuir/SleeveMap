@@ -2,8 +2,9 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
+import { Suspense } from 'react'
 
-export default function SyncOnLoad() {
+function SyncOnLoadInner() {
   const searchParams = useSearchParams()
   const router = useRouter()
   const [status, setStatus] = useState<string | null>(null)
@@ -17,7 +18,6 @@ export default function SyncOnLoad() {
       .then(r => r.json())
       .then(data => {
         setStatus(`Synced ${data.synced} activities`)
-        // Remove ?syncing from the URL without a page reload
         router.replace('/map')
       })
       .catch(() => setStatus('Sync failed — try refreshing'))
@@ -36,5 +36,13 @@ export default function SyncOnLoad() {
       <span style={{ color: 'var(--orange)', marginRight: '0.5rem' }}>⬤</span>
       {status}
     </div>
+  )
+}
+
+export default function SyncOnLoad() {
+  return (
+    <Suspense fallback={null}>
+      <SyncOnLoadInner />
+    </Suspense>
   )
 }

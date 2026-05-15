@@ -1,26 +1,54 @@
-@import "tailwindcss";
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --orange: #FC4C02;
+  --orange-dim: #c93d01;
+  --bg: #080808;
+  --bg2: #111111;
+  --bg3: #181818;
+  --border: rgba(255, 255, 255, 0.07);
+  --text: #f0ede8;
+  --muted: #6b6560;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  scroll-behavior: smooth;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-dm-mono), monospace;
+  font-weight: 300;
+  overflow-x: hidden;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.route-path {
+  stroke-dasharray: 2000;
+  stroke-dashoffset: 2000;
+  animation: drawRoute linear forwards;
+}
+
+@keyframes drawRoute {
+  to { stroke-dashoffset: 0; }
+}
+
+@media (max-width: 700px) {
+  .example-inner {
+    grid-template-columns: 1fr !important;
+  }
+  .stats-strip {
+    grid-template-columns: 1fr !important;
+  }
+  .stat {
+    border-right: none !important;
+    border-bottom: 1px solid var(--border) !important;
+  }
 }

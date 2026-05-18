@@ -49,8 +49,6 @@ export async function GET(req: NextRequest) {
           distance_m:    row.distance_m,
           moving_time_s: row.moving_time_s,
           elevation_m:   row.elevation_m,
-          city:          row.city,
-          country:       row.country,
         },
       }
     })

@@ -15,7 +15,7 @@ export async function GET(req: NextRequest) {
 
   const { data, error } = await supabase
     .from('users')
-    .select('id, username, full_name, avatar_url, is_public, last_synced_at')
+    .select('id, username, full_name, avatar_url, is_public, last_synced_at, activity_colors')
     .eq('id', userId)
     .single()
 
@@ -32,7 +32,7 @@ export async function PATCH(req: NextRequest) {
   }
 
   const body = await req.json()
-  const allowed = ['username', 'is_public']
+  const allowed = ['username', 'is_public', 'activity_colors']
   const updates: Record<string, any> = {}
 
   for (const key of allowed) {
@@ -65,7 +65,7 @@ export async function PATCH(req: NextRequest) {
     .from('users')
     .update(updates)
     .eq('id', userId)
-    .select('id, username, full_name, avatar_url, is_public, last_synced_at')
+    .select('id, username, full_name, avatar_url, is_public, last_synced_at, activity_colors')
     .single()
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })

@@ -63,6 +63,7 @@ export default function Navbar() {
 
       <div style={{ display: 'flex', gap: '2rem', alignItems: 'center' }}>
         {navLink('/explore', 'Explorer')}
+        {navLink('/plan', 'Plan')}
 
         {profile ? (
           // Logged in — nav links + avatar

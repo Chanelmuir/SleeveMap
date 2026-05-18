@@ -37,20 +37,63 @@ function Avatar({ name, avatarUrl, size = 40 }: { name: string; avatarUrl?: stri
   )
 }
 
+function StarButton({ profileId, initialFavourited }: { profileId: string; initialFavourited: boolean }) {
+  const [favourited, setFavourited] = useState(initialFavourited)
+  const [loading, setLoading] = useState(false)
+
+  async function toggle(e: React.MouseEvent) {
+    e.preventDefault()
+    e.stopPropagation()
+    setLoading(true)
+    const res = await fetch('/api/favourites', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ target_id: profileId }),
+    })
+    if (res.ok) {
+      const data = await res.json()
+      setFavourited(data.favourited)
+    }
+    setLoading(false)
+  }
+
+  return (
+    <button
+      onClick={toggle}
+      disabled={loading}
+      title={favourited ? 'Remove from favourites' : 'Add to favourites'}
+      style={{
+        background: 'none', border: 'none', cursor: loading ? 'default' : 'pointer',
+        padding: '0.3rem', fontSize: '1rem', lineHeight: 1,
+        color: favourited ? '#FFD700' : 'var(--muted)',
+        transition: 'color 0.15s, transform 0.1s',
+        transform: loading ? 'scale(0.85)' : 'scale(1)',
+      }}
+    >
+      {favourited ? '★' : '☆'}
+    </button>
+  )
+}
+
 export default function ExplorePage() {
   const [profiles, setProfiles] = useState<Profile[]>([])
+  const [favouritedIds, setFavouritedIds] = useState<Set<string>>(new Set())
   const [loading, setLoading] = useState(true)
+  const [loggedIn, setLoggedIn] = useState(false)
   const [search, setSearch] = useState('')
   const [filter, setFilter] = useState<'All' | 'Public' | 'Private'>('All')
 
   useEffect(() => {
-    fetch('/api/profiles')
-      .then(r => r.json())
-      .then(data => {
-        setProfiles(data)
-        setLoading(false)
-      })
-      .catch(() => setLoading(false))
+    Promise.all([
+      fetch('/api/profiles').then(r => r.json()),
+      fetch('/api/me').then(r => r.ok ? r.json() : null),
+      fetch('/api/favourites').then(r => r.json()),
+    ]).then(([profileData, me, favData]) => {
+      setProfiles(profileData)
+      setLoggedIn(!!me)
+      setFavouritedIds(new Set((favData ?? []).map((f: any) => f.id)))
+      setLoading(false)
+    }).catch(() => setLoading(false))
   }, [])
 
   const filtered = profiles.filter(p => {
@@ -109,7 +152,6 @@ export default function ExplorePage() {
             width: '220px', borderRadius: '2px',
           }}
         />
-
         <div style={{ display: 'flex', gap: '0.4rem' }}>
           {(['All', 'Public', 'Private'] as const).map(f => (
             <button key={f} onClick={() => setFilter(f)} style={{
@@ -125,7 +167,6 @@ export default function ExplorePage() {
             </button>
           ))}
         </div>
-
         <div style={{ marginLeft: 'auto', fontSize: '0.65rem', color: 'var(--muted)', letterSpacing: '0.08em' }}>
           {filtered.length} result{filtered.length !== 1 ? 's' : ''}
         </div>
@@ -135,11 +176,11 @@ export default function ExplorePage() {
       <div style={{
         maxWidth: '1100px', margin: '0 auto',
         padding: '0.75rem 2.5rem',
-        display: 'grid', gridTemplateColumns: '1fr 120px 120px 160px',
+        display: 'grid', gridTemplateColumns: `1fr 120px 120px ${loggedIn ? '36px ' : ''}160px`,
         gap: '1rem', borderBottom: '1px solid var(--border)',
       }}>
-        {['Athlete', 'Activities', 'Status', ''].map(h => (
-          <div key={h} style={{ fontSize: '0.6rem', letterSpacing: '0.15em', color: 'var(--muted)', textTransform: 'uppercase' }}>
+        {['Athlete', 'Activities', 'Status', ...(loggedIn ? [''] : []), ''].map((h, i) => (
+          <div key={i} style={{ fontSize: '0.6rem', letterSpacing: '0.15em', color: 'var(--muted)', textTransform: 'uppercase' }}>
             {h}
           </div>
         ))}
@@ -148,24 +189,22 @@ export default function ExplorePage() {
       {/* Rows */}
       <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
         {loading && (
-          <div style={{ padding: '4rem 2.5rem', textAlign: 'center', color: 'var(--muted)', fontSize: '0.8rem', letterSpacing: '0.05em' }}>
-            <span style={{ color: 'var(--orange)', marginRight: '0.5rem' }}>⬤</span>
-            Loading athletes...
+          <div style={{ padding: '4rem 2.5rem', textAlign: 'center', color: 'var(--muted)', fontSize: '0.8rem' }}>
+            <span style={{ color: 'var(--orange)', marginRight: '0.5rem' }}>⬤</span>Loading athletes...
           </div>
         )}
-
         {!loading && filtered.length === 0 && (
-          <div style={{ padding: '4rem 2.5rem', textAlign: 'center', color: 'var(--muted)', fontSize: '0.8rem', letterSpacing: '0.05em' }}>
+          <div style={{ padding: '4rem 2.5rem', textAlign: 'center', color: 'var(--muted)', fontSize: '0.8rem' }}>
             No athletes found
           </div>
         )}
-
         {filtered.map(profile => (
           <div
             key={profile.id}
             style={{
               padding: '1.25rem 2.5rem',
-              display: 'grid', gridTemplateColumns: '1fr 120px 120px 160px',
+              display: 'grid',
+              gridTemplateColumns: `1fr 120px 120px ${loggedIn ? '36px ' : ''}160px`,
               gap: '1rem', alignItems: 'center',
               borderBottom: '1px solid var(--border)',
               transition: 'background 0.15s',
@@ -191,10 +230,7 @@ export default function ExplorePage() {
 
             {/* Activity count */}
             <div>
-              <div style={{
-                fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700,
-                fontSize: '1.3rem', color: 'var(--text)', lineHeight: 1,
-              }}>
+              <div style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: '1.3rem', color: 'var(--text)', lineHeight: 1 }}>
                 {profile.activity_count.toLocaleString()}
               </div>
               <div style={{ fontSize: '0.6rem', color: 'var(--muted)', letterSpacing: '0.1em', textTransform: 'uppercase', marginTop: '0.2rem' }}>
@@ -202,7 +238,7 @@ export default function ExplorePage() {
               </div>
             </div>
 
-            {/* Public / Private badge */}
+            {/* Status badge */}
             <div>
               <span style={{
                 fontSize: '0.6rem', letterSpacing: '0.12em', textTransform: 'uppercase',
@@ -214,6 +250,16 @@ export default function ExplorePage() {
                 {profile.is_public ? 'Public' : 'Private'}
               </span>
             </div>
+
+            {/* Star — only when logged in */}
+            {loggedIn && (
+              <div style={{ display: 'flex', justifyContent: 'center' }}>
+                <StarButton
+                  profileId={profile.id}
+                  initialFavourited={favouritedIds.has(profile.id)}
+                />
+              </div>
+            )}
 
             {/* Action */}
             <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
@@ -227,10 +273,7 @@ export default function ExplorePage() {
                   View Map
                 </Link>
               ) : (
-                <span style={{
-                  fontSize: '0.65rem', color: 'var(--muted)',
-                  letterSpacing: '0.06em', fontStyle: 'italic',
-                }}>
+                <span style={{ fontSize: '0.65rem', color: 'var(--muted)', letterSpacing: '0.06em', fontStyle: 'italic' }}>
                   Private
                 </span>
               )}
@@ -239,10 +282,9 @@ export default function ExplorePage() {
         ))}
       </div>
 
-      {/* Footer note */}
       <div style={{ maxWidth: '1100px', margin: '0 auto', padding: '2rem 2.5rem' }}>
         <p style={{ fontSize: '0.65rem', color: 'var(--muted)', letterSpacing: '0.06em' }}>
-          All signed-up athletes are listed. Only public profiles have viewable maps.
+          All signed-up athletes are listed. Only public profiles have viewable maps. Star athletes to plan routes with their heatmaps in the Route Planner.
         </p>
       </div>
     </div>

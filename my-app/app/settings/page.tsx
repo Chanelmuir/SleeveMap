@@ -74,6 +74,8 @@ export default function SettingsPage() {
   const [usernameStatus, setUsernameStatus] = useState<'idle' | 'saved' | 'error'>('idle')
   const [syncing, setSyncing] = useState(false)
   const [syncResult, setSyncResult] = useState<string | null>(null)
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
+  const [deleting, setDeleting] = useState(false)
   const [toast, setToast] = useState<string | null>(null)
 
   useEffect(() => {
@@ -140,6 +142,18 @@ export default function SettingsPage() {
       setSyncResult('Sync failed — check console for details')
     }
     setSyncing(false)
+  }
+
+  async function deleteAccount() {
+    setDeleting(true)
+    const res = await fetch('/api/me/delete', { method: 'DELETE' })
+    if (res.ok) {
+      window.location.href = '/'
+    } else {
+      showToast('Failed to delete account — try again')
+      setDeleting(false)
+      setShowDeleteConfirm(false)
+    }
   }
 
   if (loading) {
@@ -358,6 +372,56 @@ export default function SettingsPage() {
             }}>
               Sign out
             </a>
+          </Row>
+          <Row
+            label="Delete account"
+            description="Permanently deletes your account and all synced activities from SleeveMap. This cannot be undone. Your Strava data is not affected."
+          >
+            {showDeleteConfirm ? (
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.5rem' }}>
+                <span style={{ fontSize: '0.65rem', color: 'rgba(255,100,100,0.8)', letterSpacing: '0.04em' }}>
+                  Are you sure? This is permanent.
+                </span>
+                <div style={{ display: 'flex', gap: '0.5rem' }}>
+                  <button
+                    onClick={() => setShowDeleteConfirm(false)}
+                    style={{
+                      fontSize: '0.6rem', letterSpacing: '0.1em', textTransform: 'uppercase',
+                      padding: '0.4rem 0.9rem', border: '1px solid var(--border)',
+                      background: 'transparent', color: 'var(--muted)', cursor: 'pointer',
+                      fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 600,
+                    }}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={deleteAccount}
+                    disabled={deleting}
+                    style={{
+                      fontSize: '0.6rem', letterSpacing: '0.1em', textTransform: 'uppercase',
+                      padding: '0.4rem 0.9rem', border: 'none',
+                      background: 'rgba(255,60,60,0.8)', color: '#fff', cursor: 'pointer',
+                      fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 600,
+                    }}
+                  >
+                    {deleting ? 'Deleting...' : 'Yes, delete everything'}
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <button
+                onClick={() => setShowDeleteConfirm(true)}
+                style={{
+                  fontSize: '0.6rem', letterSpacing: '0.1em', textTransform: 'uppercase',
+                  padding: '0.4rem 0.9rem', border: '1px solid rgba(255,60,60,0.3)',
+                  background: 'transparent', color: 'rgba(255,100,100,0.7)',
+                  cursor: 'pointer',
+                  fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 600,
+                }}
+              >
+                Delete account
+              </button>
+            )}
           </Row>
         </div>
 

@@ -27,7 +27,7 @@ export default function MapPage() {
       fontSize: '1rem', letterSpacing: '0.15em',
       textTransform: 'uppercase', color: 'var(--muted)',
     }}>
-      <span style={{ color: 'var(--orange)', marginRight: '0.75rem' }}>⬤</span>
+      <span style={{ color: 'var(--sleeve-gold)', marginRight: '0.75rem' }}>⬤</span>
       Loading...
     </div>
   )

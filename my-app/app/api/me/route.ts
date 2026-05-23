@@ -24,7 +24,7 @@ export async function GET(req: NextRequest) {
   return NextResponse.json(data)
 }
 
-// PATCH /api/me — update username or is_public
+//  /api/me — update username or is_public
 export async function PATCH(req: NextRequest) {
   const userId = req.cookies.get('user_id')?.value
   if (!userId) {

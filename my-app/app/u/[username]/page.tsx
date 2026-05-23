@@ -368,7 +368,7 @@ export default function MapPage() {
             <div style={{ fontSize: '0.6rem', color: 'var(--muted)', letterSpacing: '0.06em', display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
               @{profile.username}
               {profile.is_owner && !profile.is_public && (
-                <span style={{ color: 'var(--orange)', fontSize: '0.55rem', letterSpacing: '0.1em', textTransform: 'uppercase' }}>
+                <span style={{ color: 'var(--sleeve-gold)', fontSize: '0.55rem', letterSpacing: '0.1em', textTransform: 'uppercase' }}>
                   · Private
                 </span>
               )}
@@ -400,7 +400,7 @@ export default function MapPage() {
           fontSize: '0.65rem', letterSpacing: '0.1em', textTransform: 'uppercase',
           padding: '0.35rem 0.75rem', cursor: 'pointer', border: 'none',
           fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 600,
-          background: selectedTypes.size === 0 ? 'var(--orange)' : 'transparent',
+          background: selectedTypes.size === 0 ? 'var(--sleeve-gold)' : 'transparent',
           color: selectedTypes.size === 0 ? '#fff' : 'var(--muted)',
           transition: 'all 0.15s',
         }}>
@@ -472,7 +472,7 @@ export default function MapPage() {
             fontSize: '0.65rem', letterSpacing: '0.1em', textTransform: 'uppercase',
             padding: '0.35rem 0.75rem', cursor: 'pointer', border: 'none',
             fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 600,
-            background: selectedStyle === s.value ? 'rgba(255,255,255,0.1)' : 'transparent',
+            background: selectedStyle === s.value ? 'var(--sleeve-gold)' : 'transparent',
             color: selectedStyle === s.value ? 'var(--text)' : 'var(--muted)',
             transition: 'all 0.15s',
           }}>
@@ -487,7 +487,7 @@ export default function MapPage() {
           position: 'absolute', top: '8.5rem', left: '50%',
           transform: 'translateX(-50%)', zIndex: 10,
           display: 'flex', alignItems: 'center', gap: '0.5rem',
-          background: 'var(--bg2)', border: '1px solid var(--orange)',
+          background: 'var(--bg2)', border: '1px solid var(--sleeve-gold)',
           padding: '0.35rem', backdropFilter: 'blur(12px)',
         }}>
           <button onClick={() => {
@@ -496,7 +496,7 @@ export default function MapPage() {
             }
             setShowFitButton(false)
           }} style={{
-            background: 'transparent', border: 'none', color: 'var(--orange)',
+            background: 'transparent', border: 'none', color: 'var(--sleeve-gold)',
             padding: '0rem 0.5rem', fontSize: '0.65rem', letterSpacing: '0.12em',
             textTransform: 'uppercase', fontFamily: "'Barlow Condensed', sans-serif",
             fontWeight: 600, cursor: 'pointer',
@@ -528,7 +528,7 @@ export default function MapPage() {
           fontSize: '1.2rem', letterSpacing: '0.15em',
           textTransform: 'uppercase', color: 'var(--muted)',
         }}>
-          <span style={{ color: 'var(--orange)', marginRight: '0.75rem' }}>⬤</span>
+          <span style={{ color: 'var(--sleeve-gold)', marginRight: '0.75rem' }}>⬤</span>
           Loading sleeve...
         </div>
       )}

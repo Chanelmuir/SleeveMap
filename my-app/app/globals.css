@@ -1,3 +1,21 @@
+/* @tailwind utilities;
+@import 'tailwindcss/tailwind.css';
+@import 'tailwind/preflight.css'; */
+@import "../node_modules/tailwindcss/index.css";
+/* @tailwind base;
+@tailwind components;
+@tailwind utilities; */
+
+@theme {
+  --sleeve-dark: #070f10;
+  --sleeve-black: #132326;
+  --sleeve-ocean1: #2E5558;
+  --sleeve-ocean2: #506E6F;
+  --sleeve-ocean3: #6A8E90;
+  --sleeve-gold: #A67C3B;
+  --sleeve-bronze: #7A5A2A;
+}
+
 *, *::before, *::after {
   box-sizing: border-box;
   margin: 0;
@@ -10,7 +28,8 @@
   --bg: #080808;
   --bg2: #111111;
   --bg3: #181818;
-  --border: rgba(255, 255, 255, 0.07);
+  --border2: rgba(255, 255, 255, 0.07);
+  --border: #7a5a2a43;
   --text: #f0ede8;
   --muted: #6b6560;
 }

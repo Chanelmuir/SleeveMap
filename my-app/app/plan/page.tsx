@@ -625,7 +625,7 @@ export default function RoutePlannerPage() {
 
           {/* Route name */}
           <div style={{ padding: '1.25rem 1.5rem', borderBottom: '1px solid var(--border)' }}>
-            <p style={{ fontSize: '0.58rem', letterSpacing: '0.2em', color: 'var(--orange)', textTransform: 'uppercase', marginBottom: '0.5rem' }}>
+            <p style={{ fontSize: '0.58rem', letterSpacing: '0.2em', color: 'var(--sleeve-gold)', textTransform: 'uppercase', marginBottom: '0.5rem' }}>
               Route Planner
             </p>
             <input
@@ -654,9 +654,9 @@ export default function RoutePlannerPage() {
               {PROFILES.map(p => (
                 <button key={p.value} onClick={() => setDefaultProfile(p.value as ProfileValue)} style={{
                   flex: 1, padding: '0.5rem 0.25rem', cursor: 'pointer',
-                  border: `1px solid ${defaultProfile === p.value ? 'var(--orange)' : 'var(--border)'}`,
-                  background: defaultProfile === p.value ? 'rgba(252,76,2,0.1)' : 'transparent',
-                  color: defaultProfile === p.value ? 'var(--orange)' : 'var(--muted)',
+                  border: `1px solid ${defaultProfile === p.value ? 'var(--sleeve-gold)' : 'var(--border)'}`,
+                  background: defaultProfile === p.value ? 'rgba(166, 124, 59, 0.1)' : 'transparent',
+                  color: defaultProfile === p.value ? 'var(--sleeve-gold)' : 'var(--muted)',
                   fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 600,
                   fontSize: '0.62rem', letterSpacing: '0.08em', textTransform: 'uppercase',
                   transition: 'all 0.15s',
@@ -705,7 +705,7 @@ export default function RoutePlannerPage() {
             {publicProfiles.length === 0 && (
               <p style={{ fontSize: '0.65rem', color: 'var(--muted)', opacity: 0.5, lineHeight: 1.7 }}>
                 No starred athletes yet. Star athletes on the{' '}
-                <a href="/explore" style={{ color: 'var(--orange)', textDecoration: 'none' }}>Explorer page</a>
+                <a href="/explore" style={{ color: 'var(--sleeve-gold)', textDecoration: 'none' }}>Explorer page</a>
                 {' '}to add their heatmaps here.
               </p>
             )}
@@ -799,9 +799,9 @@ export default function RoutePlannerPage() {
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.3rem' }}>
               <button onClick={() => setSelectedTypes(new Set())} style={{
                 padding: '0.3rem 0.6rem', cursor: 'pointer', borderRadius: '2px',
-                border: `1px solid ${selectedTypes.size === 0 ? 'var(--orange)' : 'var(--border)'}`,
-                background: selectedTypes.size === 0 ? 'rgba(252,76,2,0.1)' : 'transparent',
-                color: selectedTypes.size === 0 ? 'var(--orange)' : 'var(--muted)',
+                border: `1px solid ${selectedTypes.size === 0 ? 'var(--sleeve-gold)' : 'var(--border)'}`,
+                background: selectedTypes.size === 0 ? 'rgba(166, 124, 59, 0.1)' : 'transparent',
+                color: selectedTypes.size === 0 ? 'var(--sleeve-gold)' : 'var(--muted)',
                 fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 600,
                 fontSize: '0.6rem', letterSpacing: '0.08em', textTransform: 'uppercase',
                 transition: 'all 0.15s',
@@ -852,7 +852,7 @@ export default function RoutePlannerPage() {
               <span style={{ fontSize: '0.62rem', color: 'var(--muted)', letterSpacing: '0.04em' }}>Show my activities</span>
               <button onClick={() => setShowHeatmap(v => !v)} style={{
                 width: '36px', height: '20px', borderRadius: '10px', border: 'none',
-                background: showHeatmap ? 'var(--orange)' : 'rgba(255,255,255,0.1)',
+                background: showHeatmap ? 'var(--sleeve-gold)' : 'rgba(255,255,255,0.1)',
                 cursor: 'pointer', padding: '2px',
                 display: 'flex', alignItems: 'center',
                 justifyContent: showHeatmap ? 'flex-end' : 'flex-start',
@@ -871,7 +871,7 @@ export default function RoutePlannerPage() {
               style={{
                 padding: '0.75rem', cursor: canExport ? 'pointer' : 'default',
                 border: 'none', borderRadius: '2px',
-                background: canExport ? 'var(--orange)' : 'rgba(255,255,255,0.05)',
+                background: canExport ? 'var(--sleeve-gold)' : 'rgba(255,255,255,0.05)',
                 color: canExport ? '#fff' : 'var(--muted)',
                 fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700,
                 fontSize: '0.8rem', letterSpacing: '0.1em', textTransform: 'uppercase',
@@ -893,7 +893,7 @@ export default function RoutePlannerPage() {
               <button onClick={clearAll} disabled={waypoints.length === 0} style={{
                 flex: 1, padding: '0.6rem', cursor: waypoints.length > 0 ? 'pointer' : 'default',
                 border: '1px solid var(--border)', background: 'transparent',
-                color: waypoints.length > 0 ? 'rgba(255,100,100,0.7)' : 'rgba(255,255,255,0.1)',
+                color: waypoints.length > 0 ? 'var(--sleeve-gold)' : 'rgba(255,255,255,0.1)',
                 fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 600,
                 fontSize: '0.7rem', letterSpacing: '0.08em', textTransform: 'uppercase',
               }}>
@@ -915,7 +915,7 @@ export default function RoutePlannerPage() {
               textTransform: 'uppercase', color: 'var(--muted)',
               fontFamily: "'Barlow Condensed', sans-serif",
             }}>
-              <span style={{ color: 'var(--orange)', marginRight: '0.5rem' }}>⬤</span>
+              <span style={{ color: 'var(--sleeve-gold)', marginRight: '0.5rem' }}>⬤</span>
               Calculating route...
             </div>
           )}

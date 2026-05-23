@@ -65,7 +65,7 @@ function StarButton({ profileId, initialFavourited }: { profileId: string; initi
       style={{
         background: 'none', border: 'none', cursor: loading ? 'default' : 'pointer',
         padding: '0.3rem', fontSize: '1rem', lineHeight: 1,
-        color: favourited ? '#FFD700' : 'var(--muted)',
+        color: favourited ? 'var(--sleeve-gold)' : 'var(--muted)',
         transition: 'color 0.15s, transform 0.1s',
         transform: loading ? 'scale(0.85)' : 'scale(1)',
       }}
@@ -110,14 +110,13 @@ export default function ExplorePage() {
   return (
     <div style={{ minHeight: '100vh', background: 'var(--bg)' }}>
       <Navbar />
-
       {/* Header */}
       <div style={{
         maxWidth: '1100px', margin: '0 auto',
         padding: '7rem 2.5rem 3rem',
         borderBottom: '1px solid var(--border)',
       }}>
-        <p style={{ fontSize: '0.65rem', letterSpacing: '0.2em', color: 'var(--orange)', textTransform: 'uppercase', marginBottom: '0.75rem' }}>
+        <p style={{ fontSize: '0.65rem', letterSpacing: '0.2em', color: 'var(--sleeve-gold)', textTransform: 'uppercase', marginBottom: '0.75rem' }}>
           Community
         </p>
         <h1 style={{
@@ -132,161 +131,163 @@ export default function ExplorePage() {
         </p>
       </div>
 
-      {/* Controls */}
-      <div style={{
-        maxWidth: '1100px', margin: '0 auto',
-        padding: '1.25rem 2.5rem',
-        display: 'flex', gap: '1rem', alignItems: 'center',
-        borderBottom: '1px solid var(--border)',
-      }}>
-        <input
-          type="text"
-          placeholder="Search athletes..."
-          value={search}
-          onChange={e => setSearch(e.target.value)}
-          style={{
-            background: 'var(--bg2)', border: '1px solid var(--border)',
-            color: 'var(--text)', padding: '0.5rem 1rem',
-            fontSize: '0.75rem', letterSpacing: '0.05em',
-            fontFamily: "'DM Mono', monospace", outline: 'none',
-            width: '220px', borderRadius: '2px',
-          }}
-        />
-        <div style={{ display: 'flex', gap: '0.4rem' }}>
-          {(['All', 'Public', 'Private'] as const).map(f => (
-            <button key={f} onClick={() => setFilter(f)} style={{
-              fontSize: '0.65rem', letterSpacing: '0.1em', textTransform: 'uppercase',
-              padding: '0.4rem 0.85rem', borderRadius: '2px', cursor: 'pointer',
-              fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 600,
-              background: filter === f ? 'var(--orange)' : 'transparent',
-              color: filter === f ? '#fff' : 'var(--muted)',
-              border: filter === f ? 'none' : '1px solid var(--border)',
-              transition: 'all 0.15s',
-            }}>
-              {f}
-            </button>
+      <div style={{ border: '2px solid var(--border) max-width: 1100px' }}>
+        {/* Controls */}
+        <div style={{
+          maxWidth: '1100px', margin: '0 auto',
+          padding: '1.25rem 2.5rem',
+          display: 'flex', gap: '1rem', alignItems: 'center',
+          borderBottom: '1px solid var(--border)',
+        }}>
+          <input
+            type="text"
+            placeholder="Search athletes..."
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            style={{
+              background: 'var(--sleeve-dark)', border: '1px solid var(--border)',
+              color: 'var(--text)', padding: '0.5rem 1rem',
+              fontSize: '0.75rem', letterSpacing: '0.05em',
+              fontFamily: "'DM Mono', monospace", outline: 'none',
+              width: '220px', borderRadius: '2px',
+            }}
+          />
+          <div style={{ display: 'flex', gap: '0.4rem' }}>
+            {(['All', 'Public', 'Private'] as const).map(f => (
+              <button key={f} onClick={() => setFilter(f)} style={{
+                fontSize: '0.65rem', letterSpacing: '0.1em', textTransform: 'uppercase',
+                padding: '0.4rem 0.85rem', borderRadius: '2px', cursor: 'pointer',
+                fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 600,
+                background: filter === f ? 'var(--sleeve-gold)' : 'transparent',
+                color: filter === f ? '#fff' : 'var(--muted)',
+                border: filter === f ? 'none' : '1px solid var(--border)',
+                transition: 'all 0.15s',
+              }}>
+                {f}
+              </button>
+            ))}
+          </div>
+          <div style={{ marginLeft: 'auto', fontSize: '0.65rem', color: 'var(--muted)', letterSpacing: '0.08em' }}>
+            {filtered.length} result{filtered.length !== 1 ? 's' : ''}
+          </div>
+        </div>
+
+        {/* Table header */}
+        <div style={{
+          maxWidth: '1100px', margin: '0 auto',
+          padding: '0.75rem 2.5rem',
+          display: 'grid', gridTemplateColumns: `1fr 120px 120px ${loggedIn ? '36px ' : ''}160px`,
+          gap: '1rem', borderBottom: '1px solid var(--border)',
+        }}>
+          {['Athlete', 'Activities', 'Status', ...(loggedIn ? [''] : []), ''].map((h, i) => (
+            <div key={i} style={{ fontSize: '0.6rem', letterSpacing: '0.15em', color: 'var(--muted)', textTransform: 'uppercase' }}>
+              {h}
+            </div>
           ))}
         </div>
-        <div style={{ marginLeft: 'auto', fontSize: '0.65rem', color: 'var(--muted)', letterSpacing: '0.08em' }}>
-          {filtered.length} result{filtered.length !== 1 ? 's' : ''}
+
+        {/* Rows */}
+        <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
+          {loading && (
+            <div style={{ padding: '4rem 2.5rem', textAlign: 'center', color: 'var(--muted)', fontSize: '0.8rem' }}>
+              <span style={{ color: 'var(--sleeve-gold)', marginRight: '0.5rem' }}>⬤</span>Loading athletes...
+            </div>
+          )}
+          {!loading && filtered.length === 0 && (
+            <div style={{ padding: '4rem 2.5rem', textAlign: 'center', color: 'var(--muted)', fontSize: '0.8rem' }}>
+              No athletes found
+            </div>
+          )}
+          {filtered.map(profile => (
+            <div
+              key={profile.id}
+              style={{
+                padding: '1.25rem 2.5rem',
+                display: 'grid',
+                gridTemplateColumns: `1fr 120px 120px ${loggedIn ? '36px ' : ''}160px`,
+                gap: '1rem', alignItems: 'center',
+                borderBottom: '1px solid var(--border)',
+                transition: 'background 0.15s',
+              }}
+              onMouseEnter={e => (e.currentTarget.style.background = 'var(--sleeve-dark)')}
+              onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
+            >
+              {/* Athlete */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                <Avatar name={profile.full_name} avatarUrl={profile.avatar_url} />
+                <div>
+                  <div style={{
+                    fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 600,
+                    fontSize: '1rem', color: 'var(--text)', marginBottom: '0.2rem',
+                  }}>
+                    {profile.full_name}
+                  </div>
+                  <div style={{ fontSize: '0.65rem', color: 'var(--muted)', letterSpacing: '0.05em' }}>
+                    @{profile.username}
+                  </div>
+                </div>
+              </div>
+
+              {/* Activity count */}
+              <div>
+                <div style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: '1.3rem', color: 'var(--text)', lineHeight: 1 }}>
+                  {profile.activity_count.toLocaleString()}
+                </div>
+                <div style={{ fontSize: '0.6rem', color: 'var(--muted)', letterSpacing: '0.1em', textTransform: 'uppercase', marginTop: '0.2rem' }}>
+                  activities
+                </div>
+              </div>
+
+              {/* Status badge */}
+              <div>
+                <span style={{
+                  fontSize: '0.6rem', letterSpacing: '0.12em', textTransform: 'uppercase',
+                  padding: '0.25rem 0.6rem',
+                  background: profile.is_public ? 'rgba(252,76,2,0.1)' : 'rgba(255,255,255,0.04)',
+                  color: profile.is_public ? 'var(--sleeve-gold)' : 'var(--muted)',
+                  border: `1px solid ${profile.is_public ? 'var(--sleeve-gold)' : 'var(--border)'}`,
+                }}>
+                  {profile.is_public ? 'Public' : 'Private'}
+                </span>
+              </div>
+
+              {/* Star — only when logged in */}
+              {loggedIn && (
+                <div style={{ display: 'flex', justifyContent: 'center' }}>
+                  <StarButton
+                    profileId={profile.id}
+                    initialFavourited={favouritedIds.has(profile.id)}
+                  />
+                </div>
+              )}
+
+              {/* Action */}
+              <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                {profile.is_public ? (
+                  <Link href={`/u/${profile.username}`} style={{
+                    fontSize: '0.7rem', letterSpacing: '0.08em', textTransform: 'uppercase',
+                    textDecoration: 'none', padding: '0.45rem 1.1rem',
+                    fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 600,
+                    background: 'var(--sleeve-gold)', color: '#fff', borderRadius: '2px',
+                  }}>
+                    View Map
+                  </Link>
+                ) : (
+                  <span style={{ fontSize: '0.65rem', color: 'var(--muted)', letterSpacing: '0.06em', fontStyle: 'italic' }}>
+                    Private
+                  </span>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+        </div>
+        
+        <div style={{ maxWidth: '1100px', margin: 'auto auto 0 auto', padding: '2rem 2.5rem' }}>
+          <p style={{ fontSize: '0.65rem', color: 'var(--muted)', letterSpacing: '0.06em' }}>
+            All signed-up athletes are listed. Only public profiles have viewable maps. Star athletes to plan routes with their heatmaps in the Route Planner.
+          </p>
         </div>
       </div>
-
-      {/* Table header */}
-      <div style={{
-        maxWidth: '1100px', margin: '0 auto',
-        padding: '0.75rem 2.5rem',
-        display: 'grid', gridTemplateColumns: `1fr 120px 120px ${loggedIn ? '36px ' : ''}160px`,
-        gap: '1rem', borderBottom: '1px solid var(--border)',
-      }}>
-        {['Athlete', 'Activities', 'Status', ...(loggedIn ? [''] : []), ''].map((h, i) => (
-          <div key={i} style={{ fontSize: '0.6rem', letterSpacing: '0.15em', color: 'var(--muted)', textTransform: 'uppercase' }}>
-            {h}
-          </div>
-        ))}
-      </div>
-
-      {/* Rows */}
-      <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
-        {loading && (
-          <div style={{ padding: '4rem 2.5rem', textAlign: 'center', color: 'var(--muted)', fontSize: '0.8rem' }}>
-            <span style={{ color: 'var(--orange)', marginRight: '0.5rem' }}>⬤</span>Loading athletes...
-          </div>
-        )}
-        {!loading && filtered.length === 0 && (
-          <div style={{ padding: '4rem 2.5rem', textAlign: 'center', color: 'var(--muted)', fontSize: '0.8rem' }}>
-            No athletes found
-          </div>
-        )}
-        {filtered.map(profile => (
-          <div
-            key={profile.id}
-            style={{
-              padding: '1.25rem 2.5rem',
-              display: 'grid',
-              gridTemplateColumns: `1fr 120px 120px ${loggedIn ? '36px ' : ''}160px`,
-              gap: '1rem', alignItems: 'center',
-              borderBottom: '1px solid var(--border)',
-              transition: 'background 0.15s',
-            }}
-            onMouseEnter={e => (e.currentTarget.style.background = 'var(--bg2)')}
-            onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
-          >
-            {/* Athlete */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-              <Avatar name={profile.full_name} avatarUrl={profile.avatar_url} />
-              <div>
-                <div style={{
-                  fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 600,
-                  fontSize: '1rem', color: 'var(--text)', marginBottom: '0.2rem',
-                }}>
-                  {profile.full_name}
-                </div>
-                <div style={{ fontSize: '0.65rem', color: 'var(--muted)', letterSpacing: '0.05em' }}>
-                  @{profile.username}
-                </div>
-              </div>
-            </div>
-
-            {/* Activity count */}
-            <div>
-              <div style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: '1.3rem', color: 'var(--text)', lineHeight: 1 }}>
-                {profile.activity_count.toLocaleString()}
-              </div>
-              <div style={{ fontSize: '0.6rem', color: 'var(--muted)', letterSpacing: '0.1em', textTransform: 'uppercase', marginTop: '0.2rem' }}>
-                activities
-              </div>
-            </div>
-
-            {/* Status badge */}
-            <div>
-              <span style={{
-                fontSize: '0.6rem', letterSpacing: '0.12em', textTransform: 'uppercase',
-                padding: '0.25rem 0.6rem',
-                background: profile.is_public ? 'rgba(252,76,2,0.1)' : 'rgba(255,255,255,0.04)',
-                color: profile.is_public ? 'var(--orange)' : 'var(--muted)',
-                border: `1px solid ${profile.is_public ? 'rgba(252,76,2,0.25)' : 'var(--border)'}`,
-              }}>
-                {profile.is_public ? 'Public' : 'Private'}
-              </span>
-            </div>
-
-            {/* Star — only when logged in */}
-            {loggedIn && (
-              <div style={{ display: 'flex', justifyContent: 'center' }}>
-                <StarButton
-                  profileId={profile.id}
-                  initialFavourited={favouritedIds.has(profile.id)}
-                />
-              </div>
-            )}
-
-            {/* Action */}
-            <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-              {profile.is_public ? (
-                <Link href={`/u/${profile.username}`} style={{
-                  fontSize: '0.7rem', letterSpacing: '0.08em', textTransform: 'uppercase',
-                  textDecoration: 'none', padding: '0.45rem 1.1rem',
-                  fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 600,
-                  background: 'var(--orange)', color: '#fff', borderRadius: '2px',
-                }}>
-                  View Map
-                </Link>
-              ) : (
-                <span style={{ fontSize: '0.65rem', color: 'var(--muted)', letterSpacing: '0.06em', fontStyle: 'italic' }}>
-                  Private
-                </span>
-              )}
-            </div>
-          </div>
-        ))}
-      </div>
-
-      <div style={{ maxWidth: '1100px', margin: '0 auto', padding: '2rem 2.5rem' }}>
-        <p style={{ fontSize: '0.65rem', color: 'var(--muted)', letterSpacing: '0.06em' }}>
-          All signed-up athletes are listed. Only public profiles have viewable maps. Star athletes to plan routes with their heatmaps in the Route Planner.
-        </p>
-      </div>
-    </div>
   )
 }

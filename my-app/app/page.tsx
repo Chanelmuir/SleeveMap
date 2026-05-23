@@ -38,7 +38,7 @@ export default function HomePage() {
     <>
       <Navbar />
 
-      {/* HERO */}
+      {/* Hero */}
       <section style={{
         position: 'relative', minHeight: '100vh',
         display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -99,7 +99,7 @@ export default function HomePage() {
             textTransform: 'uppercase', marginBottom: '1.5rem',
           }}>
             Cover every<br/>
-            <span style={{ color: 'var(--orange)' }}>road.</span>
+            <span style={{ color: 'var(--sleeve-gold)' }}>road.</span>
           </h1>
           <p style={{ fontSize: '0.85rem', lineHeight: 1.8, color: 'var(--muted)', maxWidth: '440px', margin: '0 auto 2.5rem' }}>
             Connect your Strava and see every road you&apos;ve ever covered — stitched together on a single map. Streets are the arms of a city, your runs are the sleeves keeping them warm.
@@ -116,59 +116,67 @@ export default function HomePage() {
           </Link>
           {!loggedIn && (
             <p style={{ marginTop: '1.2rem', fontSize: '0.7rem', color: 'var(--muted)', letterSpacing: '0.05em' }}>
-              Free to use &nbsp;·&nbsp; No credit card &nbsp;·&nbsp; Your data, your map
+              Free to use &nbsp;·&nbsp; Your data, your map
             </p>
           )}
         </div>
-      </section>
-
-      {/* STATS STRIP */}
-      <div className="stats-strip" style={{
-        borderTop: '1px solid var(--border)', borderBottom: '1px solid var(--border)',
-        display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', textAlign: 'center',
-      }}>
-        {[
-          {
-            num: stats ? formatStat(stats.totalActivities) : '—',
-            label: 'Routes mapped',
-          },
-          {
-            num: stats ? formatStat(stats.totalDistanceKm) : '—',
-            label: 'Kilometres covered',
-          },
-          {
-            num: stats ? formatStat(stats.publicProfiles) : '—',
-            label: 'Public profiles',
-          },
-        ].map((s, i) => (
-          <div key={s.label} className="stat" style={{
-            padding: '2rem 1rem',
-            borderRight: i < 2 ? '1px solid var(--border)' : 'none',
-          }}>
-            <div style={{
-              fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700,
-              fontSize: '2.8rem', color: 'var(--text)', letterSpacing: '-0.02em', lineHeight: 1,
-              transition: 'opacity 0.3s',
-              opacity: stats ? 1 : 0.3,
-            }}>{s.num}</div>
-            <div style={{ fontSize: '0.65rem', letterSpacing: '0.15em', color: 'var(--muted)', textTransform: 'uppercase', marginTop: '0.4rem' }}>
-              {s.label}
+        {/* Database stats strip */}
+        <div className="stats-strip" style={{
+          position: 'absolute',
+          bottom: '2rem',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          width: 'calc(100% - 4rem)',
+          maxWidth: '1000px',
+          borderTop: '1px solid var(--border)', 
+          borderBottom: '1px solid var(--border)',
+          display: 'grid', 
+          gridTemplateColumns: 'repeat(3, 1fr)', 
+          textAlign: 'center',
+        }}>
+          {[
+            {
+              num: stats ? formatStat(stats.totalActivities) : '—',
+              label: 'Routes mapped',
+            },
+            {
+              num: stats ? formatStat(stats.totalDistanceKm) : '—',
+              label: 'Kilometres covered',
+            },
+            {
+              num: stats ? formatStat(stats.publicProfiles) : '—',
+              label: 'Public profiles',
+            },
+          ].map((s, i) => (
+            <div key={s.label} className="stat" style={{
+              padding: '2rem 1rem',
+              borderRight: i < 2 ? '1px solid var(--border)' : 'none',
+            }}>
+              <div style={{
+                fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700,
+                fontSize: 'clamp(2rem, 5vw, 2.8rem)', color: 'var(--text)', letterSpacing: '-0.02em', lineHeight: 1,
+                transition: 'opacity 0.3s',
+                opacity: stats ? 1 : 0.3,
+              }}>{s.num}</div>
+              <div style={{ fontSize: '0.65rem', letterSpacing: '0.15em', color: 'var(--muted)', textTransform: 'uppercase', marginTop: '0.4rem' }}>
+                {s.label}
+              </div>
             </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      </section>
 
       {/* FEATURES */}
       <section id="features" style={{ maxWidth: '1100px', margin: '0 auto', padding: '6rem 2rem' }}>
-        <p style={{ fontSize: '0.65rem', letterSpacing: '0.2em', color: 'var(--orange)', textTransform: 'uppercase', marginBottom: '1rem' }}>
-          Why SleeveMap
+        <p style={{ fontSize: '0.65rem', letterSpacing: '0.2em', color: 'var(--sleeve-gold)', textTransform: 'uppercase', marginBottom: '1rem' }}>
+          Why SleeveMap?
         </p>
         <h2 style={{
           fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700,
           fontSize: 'clamp(2rem, 5vw, 3.5rem)', textTransform: 'uppercase',
           lineHeight: 1.05, marginBottom: '3rem',
         }}>
-          Built for<br/>road obsessives
+          Designed for<br/>street collectors
         </h2>
 
         <div style={{
@@ -177,9 +185,9 @@ export default function HomePage() {
         }}>
           {features.map(f => (
             <div key={f.title} style={{ background: 'var(--bg)', padding: '2rem', transition: 'background 0.2s' }}
-              onMouseEnter={e => (e.currentTarget.style.background = 'var(--bg2)')}
+              onMouseEnter={e => (e.currentTarget.style.background = 'var(--sleeve-dark)')}
               onMouseLeave={e => (e.currentTarget.style.background = 'var(--bg)')}>
-              <div style={{ color: 'var(--orange)', marginBottom: '1.25rem' }}>{f.icon}</div>
+              <div style={{ color: 'var(--sleeve-gold)', marginBottom: '1.25rem' }}>{f.icon}</div>
               <h3 style={{
                 fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 600,
                 fontSize: '1.15rem', letterSpacing: '0.04em', textTransform: 'uppercase', marginBottom: '0.6rem',
@@ -191,13 +199,13 @@ export default function HomePage() {
       </section>
 
       {/* EXAMPLE MAP */}
-      <section id="explore" style={{ background: 'var(--bg2)', borderTop: '1px solid var(--border)', borderBottom: '1px solid var(--border)' }}>
+      <section id="explore" style={{ background: 'var(--bg)', borderTop: '1px solid var(--border)', borderBottom: '1px solid var(--border)' }}>
         <div className="example-inner" style={{
           maxWidth: '1100px', margin: '0 auto', padding: '5rem 2rem',
           display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '4rem', alignItems: 'center',
         }}>
           <div>
-            <p style={{ fontSize: '0.65rem', letterSpacing: '0.2em', color: 'var(--orange)', textTransform: 'uppercase', marginBottom: '1rem' }}>
+            <p style={{ fontSize: '0.65rem', letterSpacing: '0.2em', color: 'var(--sleeve-gold)', textTransform: 'uppercase', marginBottom: '1rem' }}>
               Public profiles
             </p>
             <h2 style={{
@@ -231,7 +239,7 @@ export default function HomePage() {
               padding: '0.4rem 0.75rem', fontSize: '0.65rem', letterSpacing: '0.08em', color: 'var(--muted)',
             }}>
               <img src="https://dgalywyr863hv.cloudfront.net/pictures/athletes/31069937/11808415/9/large.jpg" alt="Example avatar" style={{ width: 21, height: 21, borderRadius: '50%', background: 'var(--white)', opacity: 0.8 }}/>
-              chanel_muir
+              the_sleeve
             </div>
             <div style={{ position: 'absolute', bottom: '1rem', left: '1rem', display: 'flex', flexDirection: 'column', gap: '0.2rem', background: 'rgba(8,8,8,0.9)', border: '1px solid var(--border)', padding: '0.4rem 0.75rem' }}>
               <span style={{ fontSize: '0.6rem', letterSpacing: '0.08em', color: 'var(--muted)' }}><strong style={{ color: 'var(--text)', fontWeight: 400 }}>{stats?.chanelActivities}</strong> activities</span>
@@ -241,33 +249,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* CTA */}
-      <section style={{ textAlign: 'center', padding: '7rem 2rem' }}>
-        <p style={{ fontSize: '0.65rem', letterSpacing: '0.2em', color: 'var(--orange)', textTransform: 'uppercase', marginBottom: '1rem' }}>
-          Get started
-        </p>
-        <h2 style={{
-          fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700,
-          fontSize: 'clamp(2rem, 5vw, 3.5rem)', textTransform: 'uppercase',
-          lineHeight: 1.05, marginBottom: '1rem',
-        }}>
-          Stitch your<br/>sleeve
-        </h2>
-        <p style={{ fontSize: '0.8rem', color: 'var(--muted)', marginBottom: '2.5rem', letterSpacing: '0.05em' }}>
-          Takes about 30 seconds to connect. Your full history syncs automatically.
-        </p>
-        <Link href={loggedIn ? '/map' : '/api/auth/strava'} style={{
-          display: 'inline-flex', alignItems: 'center', gap: '0.6rem',
-          background: 'var(--orange)', color: '#fff', textDecoration: 'none',
-          fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 600,
-          fontSize: '0.95rem', letterSpacing: '0.08em', textTransform: 'uppercase',
-          padding: '0.9rem 2rem', borderRadius: '2px',
-        }}>
-          {loggedIn ? null : <StravaIcon />}
-          {loggedIn ? 'View your sleeve' : "Connect with Strava — it's free"}
-        </Link>
-      </section>
-
       {/* FOOTER */}
       <footer style={{
         borderTop: '1px solid var(--border)', padding: '2rem 2.5rem',
@@ -275,7 +256,7 @@ export default function HomePage() {
         fontSize: '0.65rem', letterSpacing: '0.08em', color: 'var(--muted)',
       }}>
         <Link href="/" style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: '1.2rem', color: 'var(--text)', textDecoration: 'none' }}>
-          Sleeve<span style={{ color: 'var(--orange)' }}>Map</span>
+          Sleeve<span style={{ color: 'var(--sleeve-gold)' }}>Map</span>
         </Link>
         <div style={{ display: 'flex', gap: '2rem' }}>
           {[['Privacy', '/privacy'], ['Terms', '/terms'], ['GitHub', 'https://github.com/Chanelmuir/Strava-Heatmap']].map(([label, href]) => (
@@ -297,8 +278,8 @@ function StravaIcon() {
 
 const features = [
   {
-    title: 'Every road, one view',
-    desc: 'Every run, ride, and hike layered on a single zoomable map. Watch your sleeve\'s fill out as you cover more ground.',
+    title: 'Every street, one view',
+    desc: 'Every run, ride, and hike layered on a single map. Watch your sleeve\'s fill out as you cover more ground.',
     icon: <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/></svg>,
   },
   {
@@ -308,7 +289,7 @@ const features = [
   },
   {
     title: 'Public sleeves',
-    desc: "Optionally share your sleeve at a public URL. Show the world how much ground you've covered — or keep it private.",
+    desc: "Optionally share your sleeve at a public URL. Show the world how much ground you've covered — or stitch in silence...",
     icon: <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 010 20M12 2a15.3 15.3 0 000 20"/></svg>,
   },
   {
@@ -317,9 +298,9 @@ const features = [
     icon: <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2a1 1 0 01-.293.707L13 13.414V19a1 1 0 01-.553.894l-4 2A1 1 0 017 21v-7.586L3.293 6.707A1 1 0 013 6V4z"/></svg>,
   },
   {
-    title: 'Personal stats',
-    desc: 'Total distance, elevation, roads covered. Your lifetime effort distilled into numbers that actually mean something.',
-    icon: <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>,
+    title: 'Plan with Friends',
+    desc: 'Use our planning tool to map out routes with friends. See where your sleeves overlap, and find new streets together.',
+    icon: <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/></svg>,
   },
   {
     title: 'Private by default',

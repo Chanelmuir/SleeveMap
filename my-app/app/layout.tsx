@@ -33,7 +33,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={`${barlowCondensed.variable} ${dmMono.variable}`}>
-      <body>{children}</body>
+      <body style={{ background: 'var(--sleeve-dark)' }}>{children}</body>
     </html>
   )
 }

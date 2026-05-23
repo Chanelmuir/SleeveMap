@@ -23,7 +23,7 @@ export default function Navbar() {
   }, [])
 
   const navLink = (href: string, label: string) => {
-    const active = pathname === href
+    const active = (pathname === href)
     return (
       <Link href={href} style={{
         color: active ? 'var(--text)' : 'var(--muted)',
@@ -31,7 +31,7 @@ export default function Navbar() {
         fontSize: '0.75rem',
         letterSpacing: '0.08em',
         transition: 'color 0.2s',
-        borderBottom: active ? '1px solid var(--orange)' : '1px solid transparent',
+        borderBottom: active ? '1px solid var(--sleeve-gold)' : '1px solid transparent',
         paddingBottom: '2px',
       }}>
         {label}
@@ -58,7 +58,7 @@ export default function Navbar() {
         letterSpacing: '0.05em', color: 'var(--text)',
         textDecoration: 'none',
       }}>
-        Sleeve<span style={{ color: 'var(--orange)' }}>Map</span>
+        Sleeve<span style={{ color: 'var(--sleeve-gold)' }}>Map</span>
       </Link>
 
       <div style={{ display: 'flex', gap: '2rem', alignItems: 'center' }}>
@@ -79,7 +79,7 @@ export default function Navbar() {
               style={{
                 display: 'block', textDecoration: 'none',
                 borderRadius: '50%',
-                outline: avatarHovered ? '2px solid var(--orange)' : '2px solid transparent',
+                outline: avatarHovered ? '2px solid var(--sleeve-gold)' : '2px solid transparent',
                 outlineOffset: '2px',
                 transition: 'outline-color 0.2s',
               }}
@@ -111,7 +111,7 @@ export default function Navbar() {
             </Link>
           </div>
         ) : (
-          // Logged out — Strava connect button
+          // Not Logged in: Strava connect prompt
           <Link href="/api/auth/strava" style={{
             display: 'inline-flex', alignItems: 'center', gap: '0.5rem',
             background: 'var(--orange)', color: '#fff',

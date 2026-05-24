@@ -39,7 +39,7 @@ export async function GET(req: NextRequest) {
     .upsert(
       {
         strava_id: athlete.id,
-        username: athlete.username,
+        username: athlete.username || `sleeve_${athlete.id}`,
         full_name: `${athlete.firstname} ${athlete.lastname}`,
         avatar_url: athlete.profile,
         access_token,

@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { Barlow_Condensed, DM_Mono } from 'next/font/google'
+import { Analytics } from "@vercel/analytics/next"
 import './globals.css'
 
 const barlowCondensed = Barlow_Condensed({
@@ -33,6 +34,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={`${barlowCondensed.variable} ${dmMono.variable}`}>
+      <Analytics />
       <body style={{ background: 'var(--sleeve-dark)' }}>{children}</body>
     </html>
   )

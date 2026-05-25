@@ -11,6 +11,7 @@
   "dependencies": {
     "@mapbox/polyline": "^1.2.1",
     "@supabase/supabase-js": "^2.105.4",
+    "@vercel/analytics": "^2.0.1",
     "mapbox-gl": "^3.23.1",
     "next": "16.2.6",
     "postcss": "8.5.14",
@@ -30,7 +31,6 @@
     "typescript": "^5"
   },
   "overrides": {
-  "postcss": "8.5.14"
+    "postcss": "8.5.14"
+  }
 }
-}
-

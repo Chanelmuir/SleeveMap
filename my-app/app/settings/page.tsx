@@ -202,7 +202,7 @@ export default function SettingsPage() {
         <div style={{
           display: 'flex', alignItems: 'center', gap: '1.25rem',
           padding: '1.5rem 2rem', marginBottom: '2rem',
-          background: 'var(--bg2)', border: '1px solid var(--border)',
+          background: 'var(--sleeve-dark)', border: '1px solid var(--border)',
         }}>
           {profile.avatar_url ? (
             <img src={profile.avatar_url} alt={profile.full_name}
@@ -237,7 +237,7 @@ export default function SettingsPage() {
         <div style={{ border: '1px solid var(--border)', marginBottom: '2rem' }}>
 
           {/* Section label */}
-          <div style={{ padding: '0.75rem 2rem', background: 'var(--bg2)', borderBottom: '1px solid var(--border)' }}>
+          <div style={{ padding: '0.75rem 2rem', background: 'var(--sleeve-dark)', borderBottom: '1px solid var(--border)' }}>
             <span style={{ fontSize: '0.6rem', letterSpacing: '0.18em', color: 'var(--muted)', textTransform: 'uppercase' }}>
               Privacy
             </span>
@@ -281,7 +281,7 @@ export default function SettingsPage() {
         </div>
 
         <div style={{ border: '1px solid var(--border)', marginBottom: '2rem' }}>
-          <div style={{ padding: '0.75rem 2rem', background: 'var(--bg2)', borderBottom: '1px solid var(--border)' }}>
+          <div style={{ padding: '0.75rem 2rem', background: 'var(--sleeve-dark)', borderBottom: '1px solid var(--border)' }}>
             <span style={{ fontSize: '0.6rem', letterSpacing: '0.18em', color: 'var(--muted)', textTransform: 'uppercase' }}>
               Profile
             </span>
@@ -297,7 +297,7 @@ export default function SettingsPage() {
                 }}
                 onKeyDown={e => e.key === 'Enter' && saveUsername()}
                 style={{
-                  background: 'var(--bg2)', border: `1px solid ${usernameStatus === 'error' ? 'var(--sleeve-gold)' : 'var(--border)'}`,
+                  background: 'var(--sleeve-dark)', border: `1px solid ${usernameStatus === 'error' ? 'var(--sleeve-gold)' : 'var(--border)'}`,
                   color: 'var(--text)', padding: '0.4rem 0.75rem',
                   fontSize: '0.72rem', fontFamily: "'DM Mono', monospace",
                   outline: 'none', width: '160px',
@@ -322,7 +322,7 @@ export default function SettingsPage() {
         </div>
 
         <div style={{ border: '1px solid var(--border)', marginBottom: '2rem' }}>
-          <div style={{ padding: '0.75rem 2rem', background: 'var(--bg2)', borderBottom: '1px solid var(--border)' }}>
+          <div style={{ padding: '0.75rem 2rem', background: 'var(--sleeve-dark)', borderBottom: '1px solid var(--border)' }}>
             <span style={{ fontSize: '0.6rem', letterSpacing: '0.18em', color: 'var(--muted)', textTransform: 'uppercase' }}>
               Data
             </span>
@@ -431,7 +431,7 @@ export default function SettingsPage() {
       {toast && (
         <div style={{
           position: 'fixed', bottom: '1.5rem', right: '1.5rem',
-          background: 'var(--bg2)', border: '1px solid var(--border)',
+          background: 'var(--sleeve-dark)', border: '1px solid var(--border)',
           padding: '0.75rem 1.25rem', fontSize: '0.72rem',
           letterSpacing: '0.05em', color: 'var(--text)', zIndex: 200,
         }}>

@@ -19,7 +19,7 @@ function Toggle({ on, onChange }: { on: boolean; onChange: (v: boolean) => void 
       style={{
         width: '44px', height: '24px', borderRadius: '12px',
         border: 'none', cursor: 'pointer', padding: '2px',
-        background: on ? 'var(--orange)' : 'rgba(255,255,255,0.1)',
+        background: on ? 'var(--sleeve-gold)' : 'rgba(255,255,255,0.1)',
         transition: 'background 0.2s',
         display: 'flex', alignItems: 'center',
         justifyContent: on ? 'flex-end' : 'flex-start',
@@ -186,7 +186,7 @@ export default function SettingsPage() {
 
         {/* Header */}
         <div style={{ marginBottom: '3rem' }}>
-          <p style={{ fontSize: '0.65rem', letterSpacing: '0.2em', color: 'var(--orange)', textTransform: 'uppercase', marginBottom: '0.75rem' }}>
+          <p style={{ fontSize: '0.65rem', letterSpacing: '0.2em', color: 'var(--sleeve-gold)', textTransform: 'uppercase', marginBottom: '0.75rem' }}>
             Account
           </p>
           <h1 style={{
@@ -213,7 +213,7 @@ export default function SettingsPage() {
               background: 'rgba(252,76,2,0.2)', border: '1px solid rgba(252,76,2,0.3)',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: '1.1rem',
-              color: 'var(--orange)',
+              color: 'var(--sleeve-gold)',
             }}>
               {profile.full_name?.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()}
             </div>
@@ -248,7 +248,7 @@ export default function SettingsPage() {
             description={`When enabled, your sleeve is visible at sleevemap.com/u/${profile.username} and listed in the Explorer. Visitors can see all your activities on the map but cannot access your Strava account.`}
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-              <span style={{ fontSize: '0.65rem', letterSpacing: '0.1em', color: profile.is_public ? 'var(--orange)' : 'var(--muted)', textTransform: 'uppercase' }}>
+              <span style={{ fontSize: '0.65rem', letterSpacing: '0.1em', color: profile.is_public ? 'var(--sleeve-gold)' : 'var(--muted)', textTransform: 'uppercase' }}>
                 {profile.is_public ? 'Public' : 'Private'}
               </span>
               <Toggle on={profile.is_public} onChange={togglePublic} />
@@ -297,7 +297,7 @@ export default function SettingsPage() {
                 }}
                 onKeyDown={e => e.key === 'Enter' && saveUsername()}
                 style={{
-                  background: 'var(--bg2)', border: `1px solid ${usernameStatus === 'error' ? 'var(--orange)' : 'var(--border)'}`,
+                  background: 'var(--bg2)', border: `1px solid ${usernameStatus === 'error' ? 'var(--sleeve-gold)' : 'var(--border)'}`,
                   color: 'var(--text)', padding: '0.4rem 0.75rem',
                   fontSize: '0.72rem', fontFamily: "'DM Mono', monospace",
                   outline: 'none', width: '160px',
@@ -309,7 +309,7 @@ export default function SettingsPage() {
                 style={{
                   fontSize: '0.6rem', letterSpacing: '0.1em', textTransform: 'uppercase',
                   padding: '0.4rem 0.9rem', border: 'none',
-                  background: usernameInput === profile.username ? 'rgba(255,255,255,0.05)' : 'var(--orange)',
+                  background: usernameInput === profile.username ? 'rgba(255,255,255,0.05)' : 'var(--sleeve-gold)',
                   color: usernameInput === profile.username ? 'var(--muted)' : '#fff',
                   cursor: usernameInput === profile.username ? 'default' : 'pointer',
                   fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 600,
@@ -435,7 +435,7 @@ export default function SettingsPage() {
           padding: '0.75rem 1.25rem', fontSize: '0.72rem',
           letterSpacing: '0.05em', color: 'var(--text)', zIndex: 200,
         }}>
-          <span style={{ color: 'var(--orange)', marginRight: '0.5rem' }}>⬤</span>
+          <span style={{ color: 'var(--sleeve-gold)', marginRight: '0.5rem' }}>⬤</span>
           {toast}
         </div>
       )}

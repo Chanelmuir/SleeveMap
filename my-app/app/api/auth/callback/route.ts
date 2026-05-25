@@ -6,6 +6,24 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
 
+async function generateUsername(stravaId: number): Promise<string> {
+  const candidates = [
+    `${stravaId}`,
+    `${stravaId}_${Math.random().toString(36).slice(2, 6)}`
+  ]
+
+  for (const candidate of candidates) {
+    const { data } = await supabase
+      .from('users')
+      .select('id')
+      .eq('username', candidate)
+      .single()
+    if (!data) return candidate
+  }
+
+  return `${stravaId}_${Date.now().toString(36)}`
+}
+
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url)
   const code = searchParams.get('code')
@@ -34,12 +52,20 @@ export async function GET(req: NextRequest) {
 
   const { access_token, refresh_token, expires_at, athlete } = tokenData
 
+  // Check if user exists
+  const { data: existing } = await supabase
+  .from('users')
+  .select('id')
+  .eq('strava_id', athlete.id)
+  .single()
+
+  const generatedUsername = await generateUsername(athlete.id)
   const { data: user, error } = await supabase
     .from('users')
     .upsert(
       {
         strava_id: athlete.id,
-        username: athlete.username || `sleeve_${athlete.id}`,
+        ...(!existing && { username: athlete.username || generatedUsername }),
         full_name: `${athlete.firstname} ${athlete.lastname}`,
         avatar_url: athlete.profile,
         access_token,

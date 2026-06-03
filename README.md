@@ -2,7 +2,7 @@
 
 A full-stack activity mapping platform built on the Strava API. Connect your Strava account and see every road you've ever covered — stitched together on a single living map. Streets are the arms of a city, your runs are the sleeves keeping them warm.
 
-![SleeveMap](public/example_map.png)
+![SleeveMap](my-app/public/example_map.png)
 
 ---
 

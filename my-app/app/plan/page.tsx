@@ -76,6 +76,41 @@ function haversineDistance(a: [number, number], b: [number, number]): number {
   return R * 2 * Math.atan2(Math.sqrt(x), Math.sqrt(1 - x))
 }
 
+// Distance from point P to line segment A→B (in coordinate space)
+function pointToSegmentDistance(
+  p: [number, number],
+  a: [number, number],
+  b: [number, number]
+): number {
+  const dx = b[0] - a[0]
+  const dy = b[1] - a[1]
+  if (dx === 0 && dy === 0) {
+    return Math.sqrt((p[0] - a[0]) ** 2 + (p[1] - a[1]) ** 2)
+  }
+  const t = Math.max(0, Math.min(1,
+    ((p[0] - a[0]) * dx + (p[1] - a[1]) * dy) / (dx * dx + dy * dy)
+  ))
+  return Math.sqrt((p[0] - (a[0] + t * dx)) ** 2 + (p[1] - (a[1] + t * dy)) ** 2)
+}
+
+// Returns the index of the waypoint that starts the nearest segment
+function findNearestSegment(point: [number, number], waypoints: Waypoint[]): number {
+  let minDist = Infinity
+  let minIndex = 0
+  for (let i = 0; i < waypoints.length - 1; i++) {
+    const dist = pointToSegmentDistance(
+      point,
+      [waypoints[i].lng, waypoints[i].lat],
+      [waypoints[i + 1].lng, waypoints[i + 1].lat]
+    )
+    if (dist < minDist) {
+      minDist = dist
+      minIndex = i
+    }
+  }
+  return minIndex
+}
+
 async function fetchSegment(
   from: Waypoint,
   to: Waypoint
@@ -459,13 +494,53 @@ export default function RoutePlannerPage() {
 
     map.current.on('click', (e) => {
       if ((e.originalEvent.target as HTMLElement).closest('.mapboxgl-marker')) return
+
       const profile = (map.current as any).__defaultProfile as ProfileValue ?? 'mapbox/walking'
+      const clickPoint: [number, number] = [e.lngLat.lng, e.lngLat.lat]
+
+      if (e.originalEvent.ctrlKey) {
+        // Ctrl+click — insert between existing waypoints
+        setWaypoints(prev => {
+          if (prev.length < 2) {
+            // Fewer than 2 waypoints, nothing to insert between — treat as normal click
+            const newWp: Waypoint = { id: `wp-${Date.now()}`, lng: e.lngLat.lng, lat: e.lngLat.lat, nextProfile: profile }
+            const updated = [...prev, newWp]
+            rebuildMarkers(updated, handleDragEnd)
+            if (updated.length >= 2) buildRoute(updated)
+            return updated
+          }
+
+          const segmentIndex = findNearestSegment(clickPoint, prev)
+
+          const newWp: Waypoint = {
+            id: `wp-${Date.now()}`,
+            lng: e.lngLat.lng,
+            lat: e.lngLat.lat,
+            // Inherit the profile of the segment being split
+            nextProfile: prev[segmentIndex].nextProfile,
+          }
+
+          const updated = [
+            ...prev.slice(0, segmentIndex + 1),
+            newWp,
+            ...prev.slice(segmentIndex + 1),
+          ]
+
+          rebuildMarkers(updated, handleDragEnd)
+          buildRoute(updated)
+          return updated
+        })
+        return
+      }
+
+      // Normal click — append to end
       const newWp: Waypoint = {
         id: `wp-${Date.now()}`,
         lng: e.lngLat.lng,
         lat: e.lngLat.lat,
         nextProfile: profile,
       }
+
       setWaypoints(prev => {
         const withUpdatedLast = prev.length > 0
           ? prev.map((w, i) => i === prev.length - 1 ? { ...w, nextProfile: profile } : w)
@@ -496,6 +571,33 @@ export default function RoutePlannerPage() {
       map.current.setLayoutProperty('heatmap-lines', 'visibility', v)
     }
   }, [showHeatmap])
+
+  // Re-filter all heatmap sources when selectedTypes changes
+  useEffect(() => {
+    if (!map.current) return
+
+    // Own heatmap
+    if (ownGeojsonRef.current && map.current.getSource('heatmap-activities')) {
+      const src = map.current.getSource('heatmap-activities') as mapboxgl.GeoJSONSource
+      src.setData({
+        ...ownGeojsonRef.current,
+        features: filterFeatures(ownGeojsonRef.current.features, selectedTypes),
+      })
+    }
+
+    // All active friend layers
+    for (const username of activeFriends) {
+      const geojson = friendCacheRef.current.get(username)
+      if (!geojson) continue
+      const src = map.current.getSource(friendSourceId(username)) as mapboxgl.GeoJSONSource
+      if (src) {
+        src.setData({
+          ...geojson,
+          features: filterFeatures(geojson.features, selectedTypes),
+        })
+      }
+    }
+  }, [selectedTypes, activeFriends])
 
   // Style change
   useEffect(() => {
@@ -641,7 +743,7 @@ export default function RoutePlannerPage() {
               }}
             />
             <p style={{ fontSize: '0.6rem', color: 'var(--muted)', marginTop: '0.5rem', letterSpacing: '0.04em' }}>
-              Click the map to add waypoints
+              Click to add waypoints · Ctrl+click to insert between
             </p>
           </div>
 

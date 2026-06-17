@@ -216,12 +216,18 @@ export default function RoutePlannerPage() {
   const [loading, setLoading] = useState(false)
   const heatmapLoadedRef = useRef(false)
   const [showHeatmap, setShowHeatmap] = useState(true)
+  const isInitialStyleRender = useRef(true)
 
   // Friends
   const [publicProfiles, setPublicProfiles] = useState<PublicProfile[]>([])
   const [activeFriends, setActiveFriends] = useState<Set<string>>(new Set())
   const [friendSearch, setFriendSearch] = useState('')
   const [loadingFriend, setLoadingFriend] = useState<string | null>(null)
+
+  // Routes
+  const [sharing, setSharing] = useState(false)
+  const [shareUrl, setShareUrl] = useState<string | null>(null)
+  const pendingSharedRouteRef = useRef<any>(undefined)
 
   function toggleType(type: string) {
     setSelectedTypes(prev => {
@@ -373,6 +379,29 @@ export default function RoutePlannerPage() {
     setLoading(false)
   }, [])
 
+  async function shareRoute() {
+    if (waypoints.length < 2) return
+    setSharing(true)
+    const res = await fetch('/api/routes', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name: routeName,
+        waypoints: waypoints.map(w => ({
+          lng: w.lng,
+          lat: w.lat,
+          nextProfile: w.nextProfile,
+        })),
+        distance_km: routeStats?.distanceKm ?? null,
+      }),
+    })
+    const data = await res.json()
+    const url = `${window.location.origin}/plan/${data.id}`
+    setShareUrl(url)
+    navigator.clipboard.writeText(url)
+    setSharing(false)
+  }
+
   // ── Markers ──────────────────────────────────────────────
 
   const addMarker = useCallback(
@@ -459,11 +488,30 @@ export default function RoutePlannerPage() {
   useEffect(() => {
     if (map.current || !mapContainer.current) return
 
-    map.current = new mapboxgl.Map({
-      container: mapContainer.current,
-      style: 'mapbox://styles/mapbox/dark-v11',
-      center: [0, 30], zoom: 2,
+    if (pendingSharedRouteRef.current === undefined) {
+    const saved = sessionStorage.getItem('loadRoute')
+    if (saved) {
+      sessionStorage.removeItem('loadRoute')
+      try {
+        pendingSharedRouteRef.current = JSON.parse(saved)
+      } catch {
+        pendingSharedRouteRef.current = null
+      }
+    } else {
+      pendingSharedRouteRef.current = null
+    }
+  }
+
+    const mapInstance = new mapboxgl.Map({
+    container: mapContainer.current,
+    style: 'mapbox://styles/mapbox/dark-v11',
+    center: [0, 30], zoom: 2,
     })
+    map.current = mapInstance
+
+    let layersInitialized = false
+    let cancelled = false
+
 
     const handleDragEnd = (wp: Waypoint, lngLat: mapboxgl.LngLat) => {
       setWaypoints(prev => {
@@ -477,22 +525,42 @@ export default function RoutePlannerPage() {
     }
 
     map.current.on('load', () => {
-      map.current!.addSource('route', {
+      console.log('Mapbox load event fired')
+      if (cancelled || layersInitialized) return
+      layersInitialized = true
+
+      mapInstance.addSource('route', {
         type: 'geojson',
         data: { type: 'Feature', geometry: { type: 'LineString', coordinates: [] }, properties: {} },
       })
-      map.current!.addLayer({
+      mapInstance.addLayer({
         id: 'route-casing', type: 'line', source: 'route',
         paint: { 'line-color': '#000', 'line-width': 6, 'line-opacity': 0.4 },
       })
-      map.current!.addLayer({
+      mapInstance.addLayer({
         id: 'route-line', type: 'line', source: 'route',
         paint: { 'line-color': '#ffffff', 'line-width': 5, 'line-opacity': 1, 'line-border-color': '#000000', 'line-border-width': 1 },
       })
       loadHeatmap()
+      
+      // Load in shared route if possible
+      if (pendingSharedRouteRef.current) {
+        setRouteName(pendingSharedRouteRef.current.name)
+        const loadedWaypoints: Waypoint[] = pendingSharedRouteRef.current.waypoints.map((w: any, i: number) => ({
+          id: w.id ?? `wp-loaded-${i}`,
+          lng: w.lng,
+          lat: w.lat,
+          nextProfile: w.nextProfile,
+        }))
+        setWaypoints(loadedWaypoints)
+        rebuildMarkers(loadedWaypoints, handleDragEnd)
+        if (loadedWaypoints.length >= 2) buildRoute(loadedWaypoints)
+      }
     })
+    
 
     map.current.on('click', (e) => {
+      if (cancelled) return
       if ((e.originalEvent.target as HTMLElement).closest('.mapboxgl-marker')) return
 
       const profile = (map.current as any).__defaultProfile as ProfileValue ?? 'mapbox/walking'
@@ -552,7 +620,11 @@ export default function RoutePlannerPage() {
       })
     })
 
-    return () => { map.current?.remove(); map.current = null }
+    return () => {
+      cancelled = true
+      mapInstance.remove()
+      if (map.current === mapInstance) map.current = null
+    }
   }, [])
 
   useEffect(() => {
@@ -602,6 +674,12 @@ export default function RoutePlannerPage() {
   // Style change
   useEffect(() => {
     if (!map.current) return
+
+    if (isInitialStyleRender.current) {
+      isInitialStyleRender.current = false
+      return
+    }
+
     const handleDragEnd = (wp: Waypoint, lngLat: mapboxgl.LngLat) => {
       setWaypoints(prev => {
         const updated = prev.map(w =>
@@ -966,6 +1044,18 @@ export default function RoutePlannerPage() {
           </div>
 
           {/* Actions */}
+          <button
+            onClick={shareRoute}
+            disabled={waypoints.length < 2 || sharing}
+            style={{ flex: 1, padding: '0.6rem', cursor: waypoints.length > 0 ? 'pointer' : 'default',
+                border: '1px solid var(--border)', background: 'transparent',
+                color: waypoints.length > 0 ? 'var(--sleeve-gold)' : 'rgba(255,255,255,0.1)',
+                fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 600,
+                fontSize: '0.7rem', letterSpacing: '0.08em', textTransform: 'uppercase', }}
+          >
+            {sharing ? 'Saving...' : shareUrl ? '✓ Link copied' : '⤴ Save to my profile'}
+          </button>
+
           <div style={{ padding: '1rem 1.5rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
             <button
               onClick={() => downloadGPX(routeCoordsRef.current, routeName)}

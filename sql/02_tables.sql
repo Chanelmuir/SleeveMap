@@ -1,4 +1,3 @@
--- Users table
 create table users (
   id                uuid primary key default gen_random_uuid(),
   strava_id         bigint unique not null,
@@ -21,7 +20,6 @@ create table users (
   updated_at        timestamptz default now()
 );
 
--- Activities table
 create table activities (
   id             uuid primary key default gen_random_uuid(),
   user_id        uuid not null references users(id) on delete cascade,
@@ -36,7 +34,6 @@ create table activities (
   created_at     timestamptz default now()
 );
 
--- Favourites table
 create table favourites (
   id         uuid primary key default gen_random_uuid(),
   user_id    uuid not null references users(id) on delete cascade,
@@ -44,3 +41,13 @@ create table favourites (
   created_at timestamptz default now(),
   unique(user_id, target_id)
 );
+
+create table routes (
+  id          uuid primary key default gen_random_uuid(),
+  user_id     uuid references users(id) on delete cascade,
+  name        text not null,
+  waypoints   jsonb not null,
+  distance_km float,
+  created_at  timestamptz default now()
+);
+

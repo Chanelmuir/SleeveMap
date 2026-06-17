@@ -6,3 +6,7 @@ create index if not exists activities_route_idx on activities using gist(route);
 
 -- Fast lookup of favourites by user
 create index if not exists favourites_user_id_idx on favourites(user_id);
+
+-- Fast lookup of routes by user
+create index routes_user_id_idx on routes(user_id);
+

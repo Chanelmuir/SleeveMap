@@ -497,12 +497,13 @@ export default function RoutePlannerPage() {
 
       const profile = (map.current as any).__defaultProfile as ProfileValue ?? 'mapbox/walking'
       const clickPoint: [number, number] = [e.lngLat.lng, e.lngLat.lat]
+      const isCtrlClick = e.originalEvent.ctrlKey || e.originalEvent.metaKey
 
-      if (e.originalEvent.ctrlKey) {
-        // Ctrl+click — insert between existing waypoints
+      // Ctrl + click to insert between existing waypoints
+      if (isCtrlClick) {
         setWaypoints(prev => {
           if (prev.length < 2) {
-            // Fewer than 2 waypoints, nothing to insert between — treat as normal click
+            // If fewer than 2 waypoints, treat as normal click
             const newWp: Waypoint = { id: `wp-${Date.now()}`, lng: e.lngLat.lng, lat: e.lngLat.lat, nextProfile: profile }
             const updated = [...prev, newWp]
             rebuildMarkers(updated, handleDragEnd)
@@ -516,8 +517,7 @@ export default function RoutePlannerPage() {
             id: `wp-${Date.now()}`,
             lng: e.lngLat.lng,
             lat: e.lngLat.lat,
-            // Inherit the profile of the segment being split
-            nextProfile: prev[segmentIndex].nextProfile,
+            nextProfile: profile,
           }
 
           const updated = [

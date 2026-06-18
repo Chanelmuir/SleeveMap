@@ -114,6 +114,9 @@ export default function RoutesPage() {
         <p style={{ fontSize: '0.8rem', color: 'var(--muted)', letterSpacing: '0.04em' }}>
           {loading ? 'Loading...' : `${routes.length} route${routes.length !== 1 ? 's' : ''} saved`}
         </p>
+        <p style={{ fontSize: '0.8rem', color: 'var(--muted)', letterSpacing: '0.04em' }}>
+          Routes will be deleted after 30 days.
+        </p>
       </div>
 
       {/* Table header */}

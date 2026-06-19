@@ -228,6 +228,15 @@ export default function RoutePlannerPage() {
   const [sharing, setSharing] = useState(false)
   const [shareUrl, setShareUrl] = useState<string | null>(null)
   const pendingSharedRouteRef = useRef<any>(undefined)
+  const historyRef = useRef<Waypoint[][]>([])
+  const MAX_HISTORY = 50
+
+  function pushHistory(snapshot: Waypoint[]) {
+    historyRef.current.push(snapshot.map(w => ({ ...w })))
+    if (historyRef.current.length > MAX_HISTORY) {
+      historyRef.current.shift()
+    }
+  }
 
   function toggleType(type: string) {
     setSelectedTypes(prev => {
@@ -515,6 +524,7 @@ export default function RoutePlannerPage() {
 
     const handleDragEnd = (wp: Waypoint, lngLat: mapboxgl.LngLat) => {
       setWaypoints(prev => {
+        pushHistory(prev)
         const updated = prev.map(w =>
           w.id === wp.id ? { ...w, lng: lngLat.lng, lat: lngLat.lat } : w
         )
@@ -570,6 +580,7 @@ export default function RoutePlannerPage() {
       // Ctrl + click to insert between existing waypoints
       if (isCtrlClick) {
         setWaypoints(prev => {
+          pushHistory(prev)
           if (prev.length < 2) {
             // If fewer than 2 waypoints, treat as normal click
             const newWp: Waypoint = { id: `wp-${Date.now()}`, lng: e.lngLat.lng, lat: e.lngLat.lat, nextProfile: profile }
@@ -601,7 +612,7 @@ export default function RoutePlannerPage() {
         return
       }
 
-      // Normal click — append to end
+      // Normal click: append to end
       const newWp: Waypoint = {
         id: `wp-${Date.now()}`,
         lng: e.lngLat.lng,
@@ -610,6 +621,7 @@ export default function RoutePlannerPage() {
       }
 
       setWaypoints(prev => {
+        pushHistory(prev)
         const withUpdatedLast = prev.length > 0
           ? prev.map((w, i) => i === prev.length - 1 ? { ...w, nextProfile: profile } : w)
           : prev
@@ -643,6 +655,17 @@ export default function RoutePlannerPage() {
       map.current.setLayoutProperty('heatmap-lines', 'visibility', v)
     }
   }, [showHeatmap])
+
+  useEffect(() => {
+      function handleKeyDown(e: KeyboardEvent) {
+        if ((e.ctrlKey || e.metaKey) && e.key === 'z') {
+          e.preventDefault()
+          undo()
+        }
+      }
+      window.addEventListener('keydown', handleKeyDown)
+      return () => window.removeEventListener('keydown', handleKeyDown)
+    }, [])
 
   // Re-filter all heatmap sources when selectedTypes changes
   useEffect(() => {
@@ -682,6 +705,7 @@ export default function RoutePlannerPage() {
 
     const handleDragEnd = (wp: Waypoint, lngLat: mapboxgl.LngLat) => {
       setWaypoints(prev => {
+        pushHistory(prev)
         const updated = prev.map(w =>
           w.id === wp.id ? { ...w, lng: lngLat.lng, lat: lngLat.lat } : w
         )
@@ -726,6 +750,7 @@ export default function RoutePlannerPage() {
 
   function updateWaypointProfile(id: string, profile: ProfileValue) {
     setWaypoints(prev => {
+      pushHistory(prev)
       const updated = prev.map(w => w.id === id ? { ...w, nextProfile: profile } : w)
       buildRoute(updated)
       return updated
@@ -736,8 +761,10 @@ export default function RoutePlannerPage() {
     markersRef.current.get(id)?.remove()
     markersRef.current.delete(id)
     setWaypoints(prev => {
+      pushHistory(prev)
       const updated = prev.filter(w => w.id !== id)
       const handleDragEnd = (wp: Waypoint, lngLat: mapboxgl.LngLat) => {
+        pushHistory(prev)
         setWaypoints(p => {
           const u = p.map(w => w.id === wp.id ? { ...w, lng: lngLat.lng, lat: lngLat.lat } : w)
           buildRoute(u)
@@ -757,6 +784,7 @@ export default function RoutePlannerPage() {
   }
 
   function clearAll() {
+    pushHistory(waypoints)
     markersRef.current.forEach(m => m.remove())
     markersRef.current.clear()
     routeCoordsRef.current = []
@@ -768,9 +796,11 @@ export default function RoutePlannerPage() {
 
   function reverseRoute() {
     setWaypoints(prev => {
+      pushHistory(prev)
       const reversed = [...prev].reverse()
       const handleDragEnd = (wp: Waypoint, lngLat: mapboxgl.LngLat) => {
         setWaypoints(p => {
+          pushHistory(prev)
           const u = p.map(w => w.id === wp.id ? { ...w, lng: lngLat.lng, lat: lngLat.lat } : w)
           buildRoute(u)
           return u
@@ -780,6 +810,32 @@ export default function RoutePlannerPage() {
       buildRoute(reversed)
       return reversed
     })
+  }
+
+  function undo() {
+    if (historyRef.current.length === 0) return
+    const previous = historyRef.current.pop()!
+
+    const handleDragEnd = (wp: Waypoint, lngLat: mapboxgl.LngLat) => {
+      setWaypoints(prev => {
+        pushHistory(prev)
+        const updated = prev.map(w => w.id === wp.id ? { ...w, lng: lngLat.lng, lat: lngLat.lat } : w)
+        rebuildMarkers(updated, handleDragEnd)
+        buildRoute(updated)
+        return updated
+      })
+    }
+
+    setWaypoints(previous)
+    rebuildMarkers(previous, handleDragEnd)
+    if (previous.length >= 2) {
+      buildRoute(previous)
+    } else {
+      routeCoordsRef.current = []
+      setRouteStats(null)
+      const src = map.current?.getSource('route') as mapboxgl.GeoJSONSource
+      src?.setData({ type: 'Feature', geometry: { type: 'LineString', coordinates: [] }, properties: {} })
+    }
   }
 
   const canExport = routeCoordsRef.current.length > 0
@@ -1073,6 +1129,15 @@ export default function RoutePlannerPage() {
               ↓ Export GPX
             </button>
             <div style={{ display: 'flex', gap: '0.5rem' }}>
+              <button onClick={undo} disabled={historyRef.current.length === 0} style={{
+                flex: 1, padding: '0.6rem', cursor: 'pointer',
+                border: '1px solid var(--border)', background: 'transparent',
+                color: 'var(--muted)',
+                fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 600,
+                fontSize: '0.7rem', letterSpacing: '0.08em', textTransform: 'uppercase',
+              }}>
+                ↺ Undo
+              </button>
               <button onClick={reverseRoute} disabled={waypoints.length < 2} style={{
                 flex: 1, padding: '0.6rem', cursor: waypoints.length >= 2 ? 'pointer' : 'default',
                 border: '1px solid var(--border)', background: 'transparent',

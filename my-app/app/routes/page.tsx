@@ -16,6 +16,7 @@ interface SavedRoute {
   waypoints: Waypoint[]
   distance_km: number | null
   created_at: string
+  last_accessed_at: string
 }
 
 function formatDistance(km: number | null) {
@@ -115,7 +116,7 @@ export default function RoutesPage() {
           {loading ? 'Loading...' : `${routes.length} route${routes.length !== 1 ? 's' : ''} saved`}
         </p>
         <p style={{ fontSize: '0.8rem', color: 'var(--muted)', letterSpacing: '0.04em' }}>
-          Routes will be deleted after 30 days.
+          Routes not opened in 30 days are automatically removed.
         </p>
       </div>
 
@@ -127,7 +128,7 @@ export default function RoutesPage() {
           display: 'grid', gridTemplateColumns: '1fr 110px 140px 110px 200px',
           gap: '1rem', borderBottom: '1px solid var(--border)',
         }}>
-          {['Name', 'Distance', 'Profile', 'Created', ''].map((h, i) => (
+          {['Name', 'Distance', 'Profile', 'Last opened', ''].map((h, i) => (
             <div key={i} style={{ fontSize: '0.6rem', letterSpacing: '0.15em', color: 'var(--muted)', textTransform: 'uppercase' }}>
               {h}
             </div>
@@ -222,9 +223,9 @@ export default function RoutesPage() {
               {profileSummary(route.waypoints)}
             </div>
 
-            {/* Created date */}
+            {/* Last opened date */}
             <div style={{ fontSize: '0.7rem', color: 'var(--muted)', letterSpacing: '0.03em' }}>
-              {formatDate(route.created_at)}
+              {formatDate(route.last_accessed_at)}
             </div>
 
             {/* Actions */}
@@ -237,7 +238,7 @@ export default function RoutesPage() {
                     style={{
                       fontSize: '0.6rem', letterSpacing: '0.08em', textTransform: 'uppercase',
                       padding: '0.4rem 0.7rem', border: 'none', cursor: 'pointer',
-                      background: 'var(--sleeve-gold)', color: '#fff',
+                      background: '#c0392b', color: '#fff',
                       fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 600,
                     }}
                   >

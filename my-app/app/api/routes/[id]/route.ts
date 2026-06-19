@@ -6,7 +6,8 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
 
-// GET /api/routes/[id]: fetch a single route
+// GET /api/routes/[id] — fetch a single route
+// Also bumps last_accessed_at so actively-shared routes don't expire
 export async function GET(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -20,10 +21,17 @@ export async function GET(
     .single()
 
   if (error || !data) return NextResponse.json({ error: 'Not found' }, { status: 404 })
+
+  supabase
+    .from('routes')
+    .update({ last_accessed_at: new Date().toISOString() })
+    .eq('id', id)
+    .then(() => {})
+
   return NextResponse.json(data)
 }
 
-// PATCH /api/routes/[id]: rename a route (owner only)
+// PATCH /api/routes/[id] — rename a route
 export async function PATCH(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -49,7 +57,6 @@ export async function PATCH(
   return NextResponse.json(data)
 }
 
-// DELETE /api/routes/[id]: delete a route (owner only)
 export async function DELETE(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }

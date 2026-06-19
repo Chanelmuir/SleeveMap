@@ -48,6 +48,6 @@ create table routes (
   name        text not null,
   waypoints   jsonb not null,
   distance_km float,
-  created_at  timestamptz default now()
+  created_at  timestamptz default now(),
+  last_accessed_at timestamptz default now()
 );
-

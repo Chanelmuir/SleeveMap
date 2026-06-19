@@ -3,10 +3,10 @@ create extension if not exists pg_cron;
 
 -- Schedule a daily cleanup at 3am UTC
 select cron.schedule(
-  'delete-old-routes',           -- job name
-  '0 3 * * *',                   -- every day at 3am
+  'delete-stale-routes',
+  '0 3 * * *',
   $$
     delete from routes
-    where created_at < now() - interval '30 days'
+    where last_accessed_at < now() - interval '30 days'
   $$
 );

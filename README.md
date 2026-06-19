@@ -67,58 +67,7 @@ NEXT_PUBLIC_APP_URL=http://localhost:3000
 
 ### 3. Database setup
 
-Run the following in the Supabase SQL Editor in order:
-
-```sql
--- Enable PostGIS
-create extension if not exists postgis;
-
--- Users table
-create table users (
-  id                uuid primary key default gen_random_uuid(),
-  strava_id         bigint unique not null,
-  username          text unique,
-  full_name         text,
-  avatar_url        text,
-  access_token      text not null,
-  refresh_token     text not null,
-  token_expires_at  timestamptz not null,
-  is_public         boolean default false,
-  activity_colors   jsonb default '{"Run":"#FC4C02","Ride":"#3498DB","Hike":"#27AE60","Walk":"#F39C12","Swim":"#9B59B6"}',
-  last_synced_at    timestamptz,
-  created_at        timestamptz default now(),
-  updated_at        timestamptz default now()
-);
-
--- Activities table
-create table activities (
-  id             uuid primary key default gen_random_uuid(),
-  user_id        uuid not null references users(id) on delete cascade,
-  strava_id      bigint unique not null,
-  name           text,
-  type           text,
-  start_date     timestamptz,
-  distance_m     float,
-  moving_time_s  int,
-  elevation_m    float,
-  route          geometry(LineString, 4326),
-  created_at     timestamptz default now()
-);
-
-create index activities_user_id_idx on activities(user_id);
-create index activities_route_idx on activities using gist(route);
-
--- Favourites table
-create table favourites (
-  id         uuid primary key default gen_random_uuid(),
-  user_id    uuid not null references users(id) on delete cascade,
-  target_id  uuid not null references users(id) on delete cascade,
-  created_at timestamptz default now(),
-  unique(user_id, target_id)
-);
-```
-
-Then run the remaining SQL functions from the `/sql` folder (3-7). 
+Run the SQL functions from the `/sql` folder (1-8) to set up the database on supabase. 
 
 ### 4. Strava app settings
 

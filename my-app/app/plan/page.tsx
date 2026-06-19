@@ -239,6 +239,7 @@ export default function RoutePlannerPage() {
   const pendingSharedRouteRef = useRef<any>(undefined)
   const historyRef = useRef<Waypoint[][]>([])
   const MAX_HISTORY = 50
+  const [insertMode, setInsertMode] = useState(false)
 
   function pushHistory(snapshot: Waypoint[]) {
     historyRef.current.push(snapshot.map(w => ({ ...w })))
@@ -590,9 +591,10 @@ export default function RoutePlannerPage() {
       const profile = (map.current as any).__defaultProfile as ProfileValue ?? 'mapbox/walking'
       const clickPoint: [number, number] = [e.lngLat.lng, e.lngLat.lat]
       const isCtrlClick = e.originalEvent.ctrlKey || e.originalEvent.metaKey
+      const isInsertModeActive = (map.current as any).__insertMode === true
 
-      // Ctrl + click to insert between existing waypoints
-      if (isCtrlClick) {
+      // Ctrl + click or insert mode
+      if (isCtrlClick || isInsertModeActive) {
         setWaypoints(prev => {
           pushHistory(prev)
           if (prev.length < 2) {
@@ -623,6 +625,11 @@ export default function RoutePlannerPage() {
           buildRoute(updated)
           return updated
         })
+
+        if (isInsertModeActive) {
+          ;(map.current as any).__insertMode = false
+          setInsertMode(false)
+        }
         return
       }
 
@@ -660,6 +667,10 @@ export default function RoutePlannerPage() {
   useEffect(() => {
     if (map.current) (map.current as any).__mapStyle = selectedStyle
   }, [selectedStyle])
+
+  useEffect(() => {
+  if (map.current) (map.current as any).__insertMode = insertMode
+}, [insertMode])
 
   // Heatmap visibility
   useEffect(() => {
@@ -895,6 +906,27 @@ export default function RoutePlannerPage() {
             </p>
           </div>
 
+          {/* Insert mode toggle */}
+          <div style={{ padding: '0.75rem 1.5rem', borderBottom: '1px solid var(--border)' }}>
+            <button
+              onClick={() => setInsertMode(v => !v)}
+              disabled={waypoints.length < 2}
+              style={{
+                width: '100%', padding: '0.6rem', cursor: waypoints.length >= 2 ? 'pointer' : 'default',
+                border: `1px solid ${insertMode ? 'var(--sleeve-gold)' : 'var(--border)'}`,
+                background: insertMode ? 'rgba(166, 124, 59, 0.15)' : 'transparent',
+                color: insertMode ? 'var(--sleeve-gold)' : waypoints.length >= 2 ? 'var(--muted)' : 'rgba(255,255,255,0.15)',
+                fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 600,
+                fontSize: '0.7rem', letterSpacing: '0.08em', textTransform: 'uppercase',
+                transition: 'all 0.15s',
+              }}
+            >
+              {insertMode ? 'Tap map to insert...' : 'Insert point'}
+            </button>
+            <p style={{ fontSize: '0.58rem', color: 'var(--muted)', marginTop: '0.4rem', opacity: 0.6, lineHeight: 1.5 }}>
+              Or Ctrl+click on desktop
+            </p>
+          </div>
           {/* Default profile */}
           <div style={{ padding: '1rem 1.5rem', borderBottom: '1px solid var(--border)' }}>
             <p style={{ fontSize: '0.58rem', letterSpacing: '0.15em', color: 'var(--muted)', textTransform: 'uppercase', marginBottom: '0.6rem' }}>

@@ -13,7 +13,7 @@ export async function GET(req: NextRequest) {
 
   const { data, error } = await supabase
     .from('routes')
-    .select('id, name, waypoints, distance_km, created_at')
+    .select('id, name, waypoints, distance_km, created_at, last_accessed_at')
     .eq('user_id', userId)
     .order('created_at', { ascending: false })
 

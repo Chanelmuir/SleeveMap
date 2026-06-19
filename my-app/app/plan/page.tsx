@@ -111,6 +111,15 @@ function findNearestSegment(point: [number, number], waypoints: Waypoint[]): num
   return minIndex
 }
 
+function getBounds(waypoints: Waypoint[]): mapboxgl.LngLatBoundsLike {
+  const lngs = waypoints.map(w => w.lng)
+  const lats = waypoints.map(w => w.lat)
+  return [
+    [Math.min(...lngs), Math.min(...lats)], // southwest
+    [Math.max(...lngs), Math.max(...lats)], // northeast
+  ]
+}
+
 async function fetchSegment(
   from: Waypoint,
   to: Waypoint
@@ -565,6 +574,11 @@ export default function RoutePlannerPage() {
         setWaypoints(loadedWaypoints)
         rebuildMarkers(loadedWaypoints, handleDragEnd)
         if (loadedWaypoints.length >= 2) buildRoute(loadedWaypoints)
+
+        mapInstance.fitBounds(getBounds(loadedWaypoints), {
+          padding: 80,
+          duration: 0, // instant — feels better than animating on initial load
+        })
       }
     })
     

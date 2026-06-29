@@ -344,7 +344,7 @@ export default function MapPage() {
         <div style={{
           position: 'absolute', top: '5rem', left: '1.5rem', zIndex: 10,
           display: 'flex', alignItems: 'center', gap: '0.75rem',
-          background: 'rgba(8,8,8,0.9)', border: '1px solid var(--border)',
+          background: 'var(--panel-bg)', border: '1px solid var(--border)',
           padding: '0.6rem 1rem', backdropFilter: 'blur(12px)',
         }}>
           {profile.avatar_url ? (
@@ -392,7 +392,7 @@ export default function MapPage() {
         position: 'absolute', top: '5rem', left: '50%',
         transform: 'translateX(-50%)', zIndex: 10,
         display: 'flex', gap: '0.5rem', alignItems: 'center',
-        background: 'rgba(8,8,8,0.9)', border: '1px solid var(--border)',
+        background: 'var(--panel-bg)', border: '1px solid var(--border)',
         padding: '0.6rem 1rem', backdropFilter: 'blur(12px)',
       }}>
         {/* All toggle — clears selection */}
@@ -401,7 +401,7 @@ export default function MapPage() {
           padding: '0.35rem 0.75rem', cursor: 'pointer', border: 'none',
           fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 600,
           background: selectedTypes.size === 0 ? 'var(--sleeve-gold)' : 'transparent',
-          color: selectedTypes.size === 0 ? '#fff' : 'var(--muted)',
+          color: selectedTypes.size === 0 ? 'var(--text)' : 'var(--muted)',
           transition: 'all 0.15s',
         }}>
           All
@@ -464,7 +464,7 @@ export default function MapPage() {
       <div style={{
         position: 'absolute', top: '5rem', right: '1.5rem', zIndex: 10,
         display: 'flex', gap: '0.5rem', alignItems: 'center',
-        background: 'rgba(8,8,8,0.9)', border: '1px solid var(--border)',
+        background: 'var(--panel-bg)', border: '1px solid var(--border)',
         padding: '0.6rem 1rem', backdropFilter: 'blur(12px)',
       }}>
         {MAP_STYLES.map(s => (
@@ -504,7 +504,7 @@ export default function MapPage() {
             ⌖ Fit to results
           </button>
           <button onClick={() => setShowFitButton(false)} style={{
-            background: 'transparent', border: '1px solid var(--black)',
+            background: 'transparent', border: '1px solid var(--border)',
             color: 'var(--orange)', width: '20px', height: '20px',
             cursor: 'pointer', fontSize: '0.9rem', fontWeight: 700,
             position: 'absolute', top: '0%', right: '-10px',
@@ -523,7 +523,7 @@ export default function MapPage() {
         <div style={{
           position: 'absolute', inset: 0, display: 'flex',
           alignItems: 'center', justifyContent: 'center',
-          background: 'rgba(8,8,8,0.7)', zIndex: 5,
+          background: 'var(--overlay-bg)', zIndex: 5,
           fontFamily: "'Barlow Condensed', sans-serif",
           fontSize: '1.2rem', letterSpacing: '0.15em',
           textTransform: 'uppercase', color: 'var(--muted)',
@@ -537,7 +537,7 @@ export default function MapPage() {
       {!loading && (
         <div style={{
           position: 'absolute', bottom: '2rem', left: '1.5rem',
-          background: 'rgba(8,8,8,0.9)', border: '1px solid var(--border)',
+          background: 'var(--panel-bg)', border: '1px solid var(--border)',
           padding: '0.6rem 1rem', fontSize: '0.65rem',
           letterSpacing: '0.1em', color: 'var(--muted)',
           fontFamily: "'Barlow Condensed', sans-serif",
@@ -553,7 +553,7 @@ export default function MapPage() {
       {hovered && (
         <div style={{
           position: 'absolute', bottom: '2rem', right: '1.5rem',
-          background: 'rgba(8,8,8,0.95)', border: '1px solid var(--border)',
+          background: 'var(--panel-bg)', border: '1px solid var(--border)',
           padding: '0.85rem 1.1rem', minWidth: '200px', backdropFilter: 'blur(8px)',
         }}>
           <div style={{
@@ -596,11 +596,11 @@ export default function MapPage() {
           margin-right: 0.5rem;
         }
         .mapboxgl-ctrl-attrib {
-          background: rgba(8,8,8,0.7) !important;
-          color: rgba(255,255,255,0.3) !important;
+          background: var(--panel-bg) !important;
+          color: var(--muted) !important;
           font-size: 0.55rem !important;
         }
-        .mapboxgl-ctrl-attrib a { color: rgba(255,255,255,0.4) !important; }
+        .mapboxgl-ctrl-attrib a { color: var(--muted) !important; }
         .mapboxgl-ctrl-bottom-left { display: none; }
       `}</style>
     </div>

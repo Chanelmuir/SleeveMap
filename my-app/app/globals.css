@@ -29,6 +29,10 @@
 
   --nav-bg: rgba(8, 8, 8, 0.85);
 
+  --panel-bg: rgba(8, 8, 8, 0.9);
+  --overlay-bg: rgba(8, 8, 8, 0.7);
+
+
   color-scheme: dark;
 }
 
@@ -45,6 +49,9 @@
 
   --sleeve-dark: #ece4d2;
   --sleeve-black: #e3dac6;
+
+  --panel-bg: rgba(247, 244, 238, 0.9);
+  --overlay-bg: rgba(247, 244, 238, 0.75);
 
   color-scheme: light;
 }

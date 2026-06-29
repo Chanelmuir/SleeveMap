@@ -131,11 +131,12 @@ export default function HomePage() {
 
         {/* Database stats strip — in normal flow now, stacks on mobile */}
         <div
-          className="grid grid-cols-1 sm:grid-cols-3 w-full mx-auto"
+          className="grid grid-cols-1 sm:grid-cols-3 w-full"
           style={{
             position: 'relative', zIndex: 2,
             maxWidth: '1000px',
             borderTop: '1px solid var(--border)',
+            margin: '0 auto',
             borderBottom: '1px solid var(--border)',
             textAlign: 'center',
           }}
@@ -259,7 +260,7 @@ export default function HomePage() {
       <footer
         className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 px-4 sm:px-10"
         style={{
-          borderTop: '1px solid var(--border)', padding: '2rem 0',
+          borderTop: '1px solid var(--border)', padding: '2rem',
           fontSize: '0.65rem', letterSpacing: '0.08em', color: 'var(--muted)',
         }}
       >

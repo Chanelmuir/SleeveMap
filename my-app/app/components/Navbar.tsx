@@ -24,13 +24,12 @@ export default function Navbar() {
       .catch(() => {})
   }, [])
 
-  // Close the mobile menu whenever the route changes
   useEffect(() => {
     setMobileOpen(false)
   }, [pathname])
 
   const navLink = (href: string, label: string, mobile = false) => {
-    const active = (pathname === href)
+    const active = pathname === href
     return (
       <Link
         href={href}
@@ -62,10 +61,7 @@ export default function Navbar() {
       onMouseEnter={() => setAvatarHovered(true)}
       onMouseLeave={() => setAvatarHovered(false)}
       title={`${profile?.full_name} · Settings`}
-      style={{
-        display: 'flex', alignItems: 'center', gap: '0.6rem',
-        textDecoration: 'none',
-      }}
+      style={{ display: 'flex', alignItems: 'center', textDecoration: 'none' }}
     >
       <div style={{
         borderRadius: '50%',
@@ -106,13 +102,11 @@ export default function Navbar() {
       onClick={() => setMobileOpen(false)}
       style={{
         display: 'inline-flex', alignItems: 'center', gap: '0.5rem',
-        background: 'var(--orange)', color: '#fff',
-        textDecoration: 'none',
+        background: 'var(--orange)', color: '#fff', textDecoration: 'none',
         fontFamily: "'Barlow Condensed', sans-serif",
         fontWeight: 600, fontSize: '0.8rem',
         letterSpacing: '0.08em', textTransform: 'uppercase',
-        padding: '0.45rem 1rem', borderRadius: '2px',
-        width: 'fit-content',
+        padding: '0.45rem 1rem', borderRadius: '2px', width: 'fit-content',
       }}
     >
       <svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14" aria-hidden="true">
@@ -129,50 +123,46 @@ export default function Navbar() {
       background: 'var(--nav-bg)',
       backdropFilter: 'blur(12px)',
     }}>
-      <div style={{
-        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-        padding: '1.1rem 1.25rem',
-      }}
-      className="sm:px-10"
+      <div
+        style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '1.1rem 1.25rem' }}
+        className="sm:px-10"
       >
-        {/* Logo */}
-        <Link href="/" onClick={() => setMobileOpen(false)} style={{
-          fontFamily: "'Barlow Condensed', sans-serif",
-          fontWeight: 700, fontSize: '1.4rem',
-          letterSpacing: '0.05em', color: 'var(--text)',
-          textDecoration: 'none', flexShrink: 0,
-        }}>
-          Sleeve<span style={{ color: 'var(--sleeve-gold)' }}>Map</span>
-        </Link>
+        {/* Left group — logo + theme toggle */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexShrink: 0 }}>
+          <Link href="/" onClick={() => setMobileOpen(false)} style={{
+            fontFamily: "'Barlow Condensed', sans-serif",
+            fontWeight: 700, fontSize: '1.4rem',
+            letterSpacing: '0.05em', color: 'var(--text)',
+            textDecoration: 'none',
+          }}>
+            Sleeve<span style={{ color: 'var(--sleeve-gold)' }}>Map</span>
+          </Link>
+          <ThemeToggle />
+        </div>
 
         {/* Desktop nav — hidden below md */}
         <div className="hidden md:flex" style={{ alignItems: 'center', gap: '2rem' }}>
           {navLink('/explore', 'Explorer')}
           {navLink('/plan', 'Plan')}
           {profile && navLink('/routes', 'Routes')}
-
           {profile ? (
             <div style={{ display: 'flex', gap: '1.5rem', alignItems: 'center' }}>
               {navLink('/map', 'My Map')}
               {avatarBlock}
             </div>
-          ) : (
-            connectButton
-          )}
-
-          <ThemeToggle />
+          ) : connectButton}
         </div>
 
-        {/* Mobile controls — theme toggle + hamburger, hidden at md+ */}
-        <div className="flex md:hidden" style={{ alignItems: 'center', gap: '0.75rem' }}>
-          <ThemeToggle />
+        {/* Mobile — hamburger only (toggle is in left group) */}
+        <div className="flex md:hidden">
           <button
             onClick={() => setMobileOpen(v => !v)}
             aria-label={mobileOpen ? 'Close menu' : 'Open menu'}
             style={{
-              width: 36, height: 36, display: 'flex', alignItems: 'center', justifyContent: 'center',
-              background: 'transparent', border: '1px solid var(--border)', borderRadius: '4px',
-              color: 'var(--text)', cursor: 'pointer',
+              width: 36, height: 36,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              background: 'transparent', border: '1px solid var(--border)',
+              borderRadius: '4px', color: 'var(--text)', cursor: 'pointer',
             }}
           >
             {mobileOpen ? (
@@ -188,7 +178,7 @@ export default function Navbar() {
         </div>
       </div>
 
-      {/* Mobile dropdown panel */}
+      {/* Mobile dropdown */}
       {mobileOpen && (
         <div
           className="md:hidden"
@@ -203,9 +193,7 @@ export default function Navbar() {
           {navLink('/plan', 'Plan', true)}
           {profile && navLink('/routes', 'Routes', true)}
           {profile && navLink('/map', 'My Map', true)}
-
           <div style={{ height: 1, background: 'var(--border)', margin: '0.25rem 0' }} />
-
           {profile ? avatarBlock : connectButton}
         </div>
       )}

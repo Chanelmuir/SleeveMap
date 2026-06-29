@@ -33,7 +33,7 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en" className={`${barlowCondensed.variable} ${dmMono.variable}`}>
+    <html lang="en" className={`${barlowCondensed.variable} ${dmMono.variable}`} suppressHydrationWarning>
       <head>
         <script
           dangerouslySetInnerHTML={{

@@ -34,7 +34,15 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={`${barlowCondensed.variable} ${dmMono.variable}`}>
-      <Analytics />
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var t=localStorage.getItem('theme');if(t==='light'){document.documentElement.classList.add('light');}}catch(e){}})();`,
+          }}
+        />
+        <Analytics />
+      </head>
+      
       <body style={{ background: 'var(--sleeve-dark)' }}>{children}</body>
     </html>
   )

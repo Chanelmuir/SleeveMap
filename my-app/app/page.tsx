@@ -39,11 +39,13 @@ export default function HomePage() {
       <Navbar />
 
       {/* Hero */}
-      <section style={{
-        position: 'relative', minHeight: '100vh',
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        overflow: 'hidden', padding: '8rem 2rem 4rem',
-      }}>
+      <section
+        className="flex flex-col px-4 sm:px-8"
+        style={{
+          position: 'relative', minHeight: '100vh',
+          overflow: 'hidden', paddingTop: '7rem', paddingBottom: '2rem',
+        }}
+      >
         {/* Animated route background */}
         <svg
           style={{ position: 'absolute', inset: 0, opacity: 0.35 }}
@@ -89,72 +91,71 @@ export default function HomePage() {
           <circle cx="700" cy="140" r="5" fill="rgba(252,76,2,0.35)"/>
         </svg>
 
-        <div style={{ position: 'relative', zIndex: 2, textAlign: 'center', maxWidth: '760px' }}>
-          <p style={{ fontSize: '0.7rem', letterSpacing: '0.2em', color: 'var(--orange)', textTransform: 'uppercase', marginBottom: '1.5rem' }}>
-            Powered by Strava
-          </p>
-          <h1 style={{
-            fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700,
-            fontSize: 'clamp(3.5rem, 10vw, 7rem)', lineHeight: 0.95,
-            textTransform: 'uppercase', marginBottom: '1.5rem',
-          }}>
-            Cover every<br/>
-            <span style={{ color: 'var(--sleeve-gold)' }}>road.</span>
-          </h1>
-          <p style={{ fontSize: '0.85rem', lineHeight: 1.8, color: 'var(--muted)', maxWidth: '440px', margin: '0 auto 2.5rem' }}>
-            Connect your Strava and see every road you&apos;ve ever covered — stitched together on a single map. Streets are the arms of a city, your runs are the sleeves keeping them warm.
-          </p>
-          <Link href={loggedIn ? '/map' : '/api/auth/strava'} style={{
-            display: 'inline-flex', alignItems: 'center', gap: '0.6rem',
-            background: 'var(--orange)', color: '#fff', textDecoration: 'none',
-            fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 600,
-            fontSize: '0.95rem', letterSpacing: '0.08em', textTransform: 'uppercase',
-            padding: '0.9rem 2rem', borderRadius: '2px',
-          }}>
-            {loggedIn ? null : <StravaIcon />}
-            {loggedIn ? 'You\'re signed in! View your sleeve' : 'Connect with Strava'}
-          </Link>
-          {!loggedIn && (
-            <p style={{ marginTop: '1.2rem', fontSize: '0.7rem', color: 'var(--muted)', letterSpacing: '0.05em' }}>
-              Free to use &nbsp;·&nbsp; Your data, your map
+        {/* Hero content — grows to fill available space, centering vertically */}
+        <div
+          className="flex-1 flex flex-col items-center justify-center"
+          style={{ position: 'relative', zIndex: 2, textAlign: 'center' }}
+        >
+          <div style={{ maxWidth: '760px' }}>
+            <p style={{ fontSize: '0.7rem', letterSpacing: '0.2em', color: 'var(--orange)', textTransform: 'uppercase', marginBottom: '1.5rem' }}>
+              Powered by Strava
             </p>
-          )}
-        </div>
-        {/* Database stats strip */}
-        <div className="stats-strip" style={{
-          position: 'absolute',
-          bottom: '2rem',
-          left: '50%',
-          transform: 'translateX(-50%)',
-          width: 'calc(100% - 4rem)',
-          maxWidth: '1000px',
-          borderTop: '1px solid var(--border)', 
-          borderBottom: '1px solid var(--border)',
-          display: 'grid', 
-          gridTemplateColumns: 'repeat(3, 1fr)', 
-          textAlign: 'center',
-        }}>
-          {[
-            {
-              num: stats ? formatStat(stats.totalActivities) : '—',
-              label: 'Routes mapped',
-            },
-            {
-              num: stats ? formatStat(stats.totalDistanceKm) : '—',
-              label: 'Kilometres covered',
-            },
-            {
-              num: stats ? formatStat(stats.publicProfiles) : '—',
-              label: 'Public profiles',
-            },
-          ].map((s, i) => (
-            <div key={s.label} className="stat" style={{
-              padding: '2rem 1rem',
-              borderRight: i < 2 ? '1px solid var(--border)' : 'none',
+            <h1 style={{
+              fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700,
+              fontSize: 'clamp(2.6rem, 10vw, 7rem)', lineHeight: 0.95,
+              textTransform: 'uppercase', marginBottom: '1.5rem',
             }}>
+              Cover every<br/>
+              <span style={{ color: 'var(--sleeve-gold)' }}>road.</span>
+            </h1>
+            <p style={{ fontSize: '0.85rem', lineHeight: 1.8, color: 'var(--muted)', maxWidth: '440px', margin: '0 auto 2.5rem' }}>
+              Connect your Strava and see every road you&apos;ve ever covered — stitched together on a single map. Streets are the arms of a city, your runs are the sleeves keeping them warm.
+            </p>
+            <Link href={loggedIn ? '/map' : '/api/auth/strava'} style={{
+              display: 'inline-flex', alignItems: 'center', gap: '0.6rem',
+              background: 'var(--orange)', color: '#fff', textDecoration: 'none',
+              fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 600,
+              fontSize: '0.95rem', letterSpacing: '0.08em', textTransform: 'uppercase',
+              padding: '0.9rem 2rem', borderRadius: '2px',
+            }}>
+              {loggedIn ? null : <StravaIcon />}
+              {loggedIn ? 'You\'re signed in! View your sleeve' : 'Connect with Strava'}
+            </Link>
+            {!loggedIn && (
+              <p style={{ marginTop: '1.2rem', fontSize: '0.7rem', color: 'var(--muted)', letterSpacing: '0.05em' }}>
+                Free to use &nbsp;·&nbsp; Your data, your map
+              </p>
+            )}
+          </div>
+        </div>
+
+        {/* Database stats strip — in normal flow now, stacks on mobile */}
+        <div
+          className="grid grid-cols-1 sm:grid-cols-3 w-full mx-auto"
+          style={{
+            position: 'relative', zIndex: 2,
+            maxWidth: '1000px',
+            borderTop: '1px solid var(--border)',
+            borderBottom: '1px solid var(--border)',
+            textAlign: 'center',
+          }}
+        >
+          {[
+            { num: stats ? formatStat(stats.totalActivities) : '—', label: 'Routes mapped' },
+            { num: stats ? formatStat(stats.totalDistanceKm) : '—', label: 'Kilometres covered' },
+            { num: stats ? formatStat(stats.publicProfiles) : '—', label: 'Public profiles' },
+          ].map((s, i) => (
+            <div
+              key={s.label}
+              className={i < 2 ? 'border-b sm:border-b-0 sm:border-r' : ''}
+              style={{
+                padding: '1.5rem 1rem',
+                borderColor: 'var(--border)',
+              }}
+            >
               <div style={{
                 fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700,
-                fontSize: 'clamp(2rem, 5vw, 2.8rem)', color: 'var(--text)', letterSpacing: '-0.02em', lineHeight: 1,
+                fontSize: 'clamp(1.8rem, 5vw, 2.8rem)', color: 'var(--text)', letterSpacing: '-0.02em', lineHeight: 1,
                 transition: 'opacity 0.3s',
                 opacity: stats ? 1 : 0.3,
               }}>{s.num}</div>
@@ -167,22 +168,24 @@ export default function HomePage() {
       </section>
 
       {/* FEATURES */}
-      <section id="features" style={{ maxWidth: '1100px', margin: '0 auto', padding: '6rem 2rem' }}>
-        <p style={{ fontSize: '0.65rem', letterSpacing: '0.2em', color: 'var(--sleeve-gold)', textTransform: 'uppercase', marginBottom: '1rem' }}>
-          Why SleeveMap?
-        </p>
-        <h2 style={{
-          fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700,
-          fontSize: 'clamp(2rem, 5vw, 3.5rem)', textTransform: 'uppercase',
-          lineHeight: 1.05, marginBottom: '3rem',
-        }}>
-          Designed for<br/>street collectors
-        </h2>
+      <section id="features" className="px-4 sm:px-8" style={{ maxWidth: '1100px', margin: '0 auto', padding: '5rem 0' }}>
+        <div className="px-4 sm:px-8">
+          <p style={{ fontSize: '0.65rem', letterSpacing: '0.2em', color: 'var(--sleeve-gold)', textTransform: 'uppercase', marginBottom: '1rem' }}>
+            Why SleeveMap?
+          </p>
+          <h2 style={{
+            fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700,
+            fontSize: 'clamp(2rem, 5vw, 3.5rem)', textTransform: 'uppercase',
+            lineHeight: 1.05, marginBottom: '3rem',
+          }}>
+            Designed for<br/>street collectors
+          </h2>
+        </div>
 
-        <div style={{
-          display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
-          gap: '1px', background: 'var(--border)', border: '1px solid var(--border)',
-        }}>
+        <div
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 mx-4 sm:mx-8"
+          style={{ gap: '1px', background: 'var(--border)', border: '1px solid var(--border)' }}
+        >
           {features.map(f => (
             <div key={f.title} style={{ background: 'var(--bg)', padding: '2rem', transition: 'background 0.2s' }}
               onMouseEnter={e => (e.currentTarget.style.background = 'var(--sleeve-dark)')}
@@ -200,10 +203,13 @@ export default function HomePage() {
 
       {/* EXAMPLE MAP */}
       <section id="explore" style={{ background: 'var(--bg)', borderTop: '1px solid var(--border)', borderBottom: '1px solid var(--border)' }}>
-        <div className="example-inner" style={{
-          maxWidth: '1100px', margin: '0 auto', padding: '5rem 2rem',
-          display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '4rem', alignItems: 'center',
-        }}>
+        <div
+          className="grid grid-cols-1 md:grid-cols-2 px-4 sm:px-8"
+          style={{
+            maxWidth: '1100px', margin: '0 auto', padding: '4rem 0',
+            gap: '2.5rem', alignItems: 'center',
+          }}
+        >
           <div>
             <p style={{ fontSize: '0.65rem', letterSpacing: '0.2em', color: 'var(--sleeve-gold)', textTransform: 'uppercase', marginBottom: '1rem' }}>
               Public profiles
@@ -236,30 +242,31 @@ export default function HomePage() {
               position: 'absolute', top: '1rem', left: '1rem',
               display: 'flex', alignItems: 'center', gap: '0.6rem',
               background: 'rgba(8,8,8,0.9)', border: '1px solid var(--border)',
-              padding: '0.4rem 0.75rem', fontSize: '0.65rem', letterSpacing: '0.08em', color: 'var(--muted)',
+              padding: '0.4rem 0.75rem', fontSize: '0.65rem', letterSpacing: '0.08em', color: '#cfcac4',
             }}>
-              <img src="https://dgalywyr863hv.cloudfront.net/pictures/athletes/31069937/11808415/9/large.jpg" alt="Example avatar" style={{ width: 21, height: 21, borderRadius: '50%', background: 'var(--white)', opacity: 0.8 }}/>
+              <img src="https://dgalywyr863hv.cloudfront.net/pictures/athletes/31069937/11808415/9/large.jpg" alt="Example avatar" style={{ width: 21, height: 21, borderRadius: '50%', background: '#fff', opacity: 0.8 }}/>
               the_sleeve
             </div>
             <div style={{ position: 'absolute', bottom: '1rem', left: '1rem', display: 'flex', flexDirection: 'column', gap: '0.2rem', background: 'rgba(8,8,8,0.9)', border: '1px solid var(--border)', padding: '0.4rem 0.75rem' }}>
-              <span style={{ fontSize: '0.6rem', letterSpacing: '0.08em', color: 'var(--muted)' }}><strong style={{ color: 'var(--text)', fontWeight: 400 }}>{stats?.chanelActivities}</strong> activities</span>
-              <span style={{ fontSize: '0.6rem', letterSpacing: '0.08em', color: 'var(--muted)' }}><strong style={{ color: 'var(--text)', fontWeight: 400 }}>{stats?.chanelDistanceKm?.toLocaleString()}</strong> km total</span>
+              <span style={{ fontSize: '0.6rem', letterSpacing: '0.08em', color: '#cfcac4' }}><strong style={{ color: '#fff', fontWeight: 400 }}>{stats?.chanelActivities}</strong> activities</span>
+              <span style={{ fontSize: '0.6rem', letterSpacing: '0.08em', color: '#cfcac4' }}><strong style={{ color: '#fff', fontWeight: 400 }}>{stats?.chanelDistanceKm?.toLocaleString()}</strong> km total</span>
             </div>
           </div>
         </div>
       </section>
 
       {/* FOOTER */}
-      <footer style={{
-        borderTop: '1px solid var(--border)', padding: '2rem 2.5rem',
-        display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-        fontSize: '0.65rem', letterSpacing: '0.08em', color: 'var(--muted)',
-      }}>
+      <footer
+        className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 px-4 sm:px-10"
+        style={{
+          borderTop: '1px solid var(--border)', padding: '2rem 0',
+          fontSize: '0.65rem', letterSpacing: '0.08em', color: 'var(--muted)',
+        }}
+      >
         <Link href="/" style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: '1.2rem', color: 'var(--text)', textDecoration: 'none' }}>
           Sleeve<span style={{ color: 'var(--sleeve-gold)' }}>Map</span>
         </Link>
         <div style={{ display: 'flex', gap: '2rem' }}>
-          {/* ['Privacy', '/privacy'], ['Terms', '/terms'], */}
           {[['GitHub', 'https://github.com/Chanelmuir/Strava-Heatmap']].map(([label, href]) => (
             <Link key={label} href={href} style={{ color: 'var(--muted)', textDecoration: 'none' }}>{label}</Link>
           ))}

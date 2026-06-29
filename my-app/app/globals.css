@@ -1,10 +1,4 @@
-/* @tailwind utilities;
-@import 'tailwindcss/tailwind.css';
-@import 'tailwind/preflight.css'; */
-@import "../node_modules/tailwindcss/index.css";
-/* @tailwind base;
-@tailwind components;
-@tailwind utilities; */
+@import "tailwindcss";
 
 @theme {
   --sleeve-dark: #070f10;
@@ -32,6 +26,27 @@
   --border: #7a5a2a43;
   --text: #f0ede8;
   --muted: #6b6560;
+
+  --nav-bg: rgba(8, 8, 8, 0.85);
+
+  color-scheme: dark;
+}
+
+.light {
+  --bg: #f7f4ee;
+  --bg2: #efe9de;
+  --bg3: #e6ddcc;
+  --border2: rgba(0, 0, 0, 0.08);
+  --border: #7a5a2a55;
+  --text: #16201f;
+  --muted: #7a7163;
+
+  --nav-bg: rgba(247, 244, 238, 0.85);
+
+  --sleeve-dark: #ece4d2;
+  --sleeve-black: #e3dac6;
+
+  color-scheme: light;
 }
 
 html {
@@ -47,6 +62,7 @@ body {
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  transition: background-color 0.25s ease, color 0.25s ease;
 }
 
 .route-path {

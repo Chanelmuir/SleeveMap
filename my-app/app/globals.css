@@ -1,5 +1,4 @@
 @import "tailwindcss";
-@source "../app";
 
 @theme {
   --sleeve-dark: #070f10;
@@ -33,6 +32,10 @@
   --panel-bg: rgba(8, 8, 8, 0.9);
   --overlay-bg: rgba(8, 8, 8, 0.7);
 
+  --surface-soft: rgba(255, 255, 255, 0.05);     /* idle input/button fill */
+  --surface-strong: rgba(255, 255, 255, 0.1);    /* toggle-off / placeholder fill */
+  --emphasis-border: rgba(255, 255, 255, 0.3);   /* selected-state outline */
+  --disabled-fg: rgba(255, 255, 255, 0.25);      /* disabled button text/icon */
 
   color-scheme: dark;
 }
@@ -47,12 +50,17 @@
   --muted: #7a7163;
 
   --nav-bg: rgba(247, 244, 238, 0.85);
+  --panel-bg: rgba(247, 244, 238, 0.9);
+  --overlay-bg: rgba(247, 244, 238, 0.75);
+
+  /* Black-tinted equivalents */
+  --surface-soft: rgba(0, 0, 0, 0.045);
+  --surface-strong: rgba(0, 0, 0, 0.08);
+  --emphasis-border: rgba(0, 0, 0, 0.22);
+  --disabled-fg: rgba(0, 0, 0, 0.25);
 
   --sleeve-dark: #ece4d2;
   --sleeve-black: #e3dac6;
-
-  --panel-bg: rgba(247, 244, 238, 0.9);
-  --overlay-bg: rgba(247, 244, 238, 0.75);
 
   color-scheme: light;
 }

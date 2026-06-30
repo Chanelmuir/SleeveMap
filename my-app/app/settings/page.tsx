@@ -12,6 +12,8 @@ interface UserProfile {
   last_synced_at: string | null
 }
 
+const FONT = "'Barlow Condensed', sans-serif"
+
 function Toggle({ on, onChange }: { on: boolean; onChange: (v: boolean) => void }) {
   return (
     <button
@@ -23,6 +25,7 @@ function Toggle({ on, onChange }: { on: boolean; onChange: (v: boolean) => void 
         transition: 'background 0.2s',
         display: 'flex', alignItems: 'center',
         justifyContent: on ? 'flex-end' : 'flex-start',
+        flexShrink: 0,
       }}
     >
       <div style={{
@@ -39,15 +42,10 @@ function Row({ label, description, children }: {
   children: React.ReactNode
 }) {
   return (
-    <div style={{
-      display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-      padding: '1.5rem 2rem',
-      borderBottom: '1px solid var(--border)',
-      gap: '2rem',
-    }}>
+    <div className="settings-row">
       <div>
         <div style={{
-          fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 600,
+          fontFamily: FONT, fontWeight: 600,
           fontSize: '1rem', letterSpacing: '0.04em', color: 'var(--text)',
           textTransform: 'uppercase', marginBottom: description ? '0.3rem' : 0,
         }}>
@@ -59,7 +57,7 @@ function Row({ label, description, children }: {
           </div>
         )}
       </div>
-      <div style={{ flexShrink: 0 }}>
+      <div className="settings-row-control">
         {children}
       </div>
     </div>
@@ -182,7 +180,79 @@ export default function SettingsPage() {
     <div style={{ minHeight: '100vh', background: 'var(--bg)' }}>
       <Navbar />
 
-      <div style={{ maxWidth: '720px', margin: '0 auto', padding: '7rem 2rem 4rem' }}>
+      <style>{`
+        .settings-container {
+          max-width: 720px;
+          margin: 0 auto;
+          padding: 7rem 1.25rem 4rem;
+        }
+        .settings-profile-card {
+          display: flex;
+          align-items: center;
+          gap: 1.25rem;
+          padding: 1.5rem;
+          margin-bottom: 2rem;
+          background: var(--sleeve-dark);
+          border: 1px solid var(--border);
+        }
+        .settings-row {
+          display: flex;
+          flex-direction: column;
+          align-items: flex-start;
+          padding: 1.25rem 1.5rem;
+          border-bottom: 1px solid var(--border);
+          gap: 1rem;
+        }
+        .settings-row-control {
+          flex-shrink: 0;
+          width: 100%;
+        }
+        .settings-section-label {
+          padding: 0.75rem 1.5rem;
+          background: var(--sleeve-dark);
+          border-bottom: 1px solid var(--border);
+        }
+        .username-edit-row {
+          display: flex;
+          gap: 0.5rem;
+          align-items: center;
+          width: 100%;
+        }
+        .username-edit-row input {
+          flex: 1;
+          min-width: 0;
+        }
+
+        @media (min-width: 640px) {
+          .settings-container {
+            padding: 7rem 2rem 4rem;
+          }
+          .settings-profile-card {
+            padding: 1.5rem 2rem;
+          }
+          .settings-row {
+            flex-direction: row;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1.5rem 2rem;
+          }
+          .settings-row-control {
+            width: auto;
+          }
+          .settings-section-label {
+            padding: 0.75rem 2rem;
+          }
+          .username-edit-row {
+            width: auto;
+          }
+          .username-edit-row input {
+            flex: none;
+            width: 160px;
+          }
+        }
+      `}</style>
+
+      <div className="settings-container">
 
         {/* Header */}
         <div style={{ marginBottom: '3rem' }}>
@@ -190,7 +260,7 @@ export default function SettingsPage() {
             Account
           </p>
           <h1 style={{
-            fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700,
+            fontFamily: FONT, fontWeight: 700,
             fontSize: 'clamp(2.5rem, 6vw, 4rem)', textTransform: 'uppercase',
             lineHeight: 0.95,
           }}>
@@ -199,33 +269,29 @@ export default function SettingsPage() {
         </div>
 
         {/* Profile card */}
-        <div style={{
-          display: 'flex', alignItems: 'center', gap: '1.25rem',
-          padding: '1.5rem 2rem', marginBottom: '2rem',
-          background: 'var(--sleeve-dark)', border: '1px solid var(--border)',
-        }}>
+        <div className="settings-profile-card">
           {profile.avatar_url ? (
             <img src={profile.avatar_url} alt={profile.full_name}
-              style={{ width: 48, height: 48, borderRadius: '50%', objectFit: 'cover' }} />
+              style={{ width: 48, height: 48, borderRadius: '50%', objectFit: 'cover', flexShrink: 0 }} />
           ) : (
             <div style={{
-              width: 48, height: 48, borderRadius: '50%',
+              width: 48, height: 48, borderRadius: '50%', flexShrink: 0,
               background: 'rgba(252,76,2,0.2)', border: '1px solid rgba(252,76,2,0.3)',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: '1.1rem',
+              fontFamily: FONT, fontWeight: 700, fontSize: '1.1rem',
               color: 'var(--sleeve-gold)',
             }}>
               {profile.full_name?.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()}
             </div>
           )}
-          <div>
-            <div style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 600, fontSize: '1.1rem', color: 'var(--text)' }}>
+          <div style={{ minWidth: 0 }}>
+            <div style={{ fontFamily: FONT, fontWeight: 600, fontSize: '1.1rem', color: 'var(--text)' }}>
               {profile.full_name}
             </div>
             <div style={{ fontSize: '0.7rem', color: 'var(--muted)', letterSpacing: '0.05em' }}>
               @{profile.username}
               {profile.last_synced_at && (
-                <span style={{ marginLeft: '1rem' }}>
+                <span style={{ marginLeft: '0.75rem' }}>
                   Last synced {new Date(profile.last_synced_at).toLocaleDateString()}
                 </span>
               )}
@@ -233,11 +299,9 @@ export default function SettingsPage() {
           </div>
         </div>
 
-        {/* Settings sections */}
+        {/* Privacy */}
         <div style={{ border: '1px solid var(--border)', marginBottom: '2rem' }}>
-
-          {/* Section label */}
-          <div style={{ padding: '0.75rem 2rem', background: 'var(--sleeve-dark)', borderBottom: '1px solid var(--border)' }}>
+          <div className="settings-section-label">
             <span style={{ fontSize: '0.6rem', letterSpacing: '0.18em', color: 'var(--muted)', textTransform: 'uppercase' }}>
               Privacy
             </span>
@@ -257,8 +321,8 @@ export default function SettingsPage() {
 
           {profile.is_public && (
             <Row label="Your public URL" description="Share this link so others can view your sleeve.">
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                <span style={{ fontSize: '0.65rem', color: 'var(--muted)', letterSpacing: '0.04em' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
+                <span style={{ fontSize: '0.65rem', color: 'var(--muted)', letterSpacing: '0.04em', wordBreak: 'break-all' }}>
                   /u/{profile.username}
                 </span>
                 <button
@@ -270,7 +334,7 @@ export default function SettingsPage() {
                     fontSize: '0.6rem', letterSpacing: '0.1em', textTransform: 'uppercase',
                     padding: '0.3rem 0.75rem', border: '1px solid var(--border)',
                     background: 'transparent', color: 'var(--muted)', cursor: 'pointer',
-                    fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 600,
+                    fontFamily: FONT, fontWeight: 600, flexShrink: 0,
                   }}
                 >
                   Copy
@@ -280,15 +344,16 @@ export default function SettingsPage() {
           )}
         </div>
 
+        {/* Profile */}
         <div style={{ border: '1px solid var(--border)', marginBottom: '2rem' }}>
-          <div style={{ padding: '0.75rem 2rem', background: 'var(--sleeve-dark)', borderBottom: '1px solid var(--border)' }}>
+          <div className="settings-section-label">
             <span style={{ fontSize: '0.6rem', letterSpacing: '0.18em', color: 'var(--muted)', textTransform: 'uppercase' }}>
               Profile
             </span>
           </div>
 
           <Row label="Username" description="Used in your public URL. Lowercase letters, numbers, and underscores only.">
-            <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+            <div className="username-edit-row">
               <input
                 value={usernameInput}
                 onChange={e => {
@@ -300,7 +365,7 @@ export default function SettingsPage() {
                   background: 'var(--sleeve-dark)', border: `1px solid ${usernameStatus === 'error' ? 'var(--sleeve-gold)' : 'var(--border)'}`,
                   color: 'var(--text)', padding: '0.4rem 0.75rem',
                   fontSize: '0.72rem', fontFamily: "'DM Mono', monospace",
-                  outline: 'none', width: '160px',
+                  outline: 'none',
                 }}
               />
               <button
@@ -312,7 +377,7 @@ export default function SettingsPage() {
                   background: usernameInput === profile.username ? 'rgba(255,255,255,0.05)' : 'var(--sleeve-gold)',
                   color: usernameInput === profile.username ? 'var(--muted)' : '#fff',
                   cursor: usernameInput === profile.username ? 'default' : 'pointer',
-                  fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 600,
+                  fontFamily: FONT, fontWeight: 600, flexShrink: 0,
                 }}
               >
                 {saving ? 'Saving...' : 'Save'}
@@ -321,8 +386,9 @@ export default function SettingsPage() {
           </Row>
         </div>
 
+        {/* Data */}
         <div style={{ border: '1px solid var(--border)', marginBottom: '2rem' }}>
-          <div style={{ padding: '0.75rem 2rem', background: 'var(--sleeve-dark)', borderBottom: '1px solid var(--border)' }}>
+          <div className="settings-section-label">
             <span style={{ fontSize: '0.6rem', letterSpacing: '0.18em', color: 'var(--muted)', textTransform: 'uppercase' }}>
               Data
             </span>
@@ -332,7 +398,7 @@ export default function SettingsPage() {
             label="Re-sync Strava"
             description="Fetch all activities again from Strava. Useful if activities are missing or you've logged new ones on another device."
           >
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.4rem' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '0.4rem' }}>
               <button
                 onClick={triggerSync}
                 disabled={syncing}
@@ -341,7 +407,7 @@ export default function SettingsPage() {
                   padding: '0.4rem 0.9rem', border: '1px solid var(--border)',
                   background: 'transparent', color: syncing ? 'var(--muted)' : 'var(--text)',
                   cursor: syncing ? 'default' : 'pointer',
-                  fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 600,
+                  fontFamily: FONT, fontWeight: 600,
                 }}
               >
                 {syncing ? 'Syncing...' : 'Sync now'}
@@ -357,7 +423,7 @@ export default function SettingsPage() {
 
         {/* Danger zone */}
         <div style={{ border: '1px solid rgba(255,60,60,0.2)' }}>
-          <div style={{ padding: '0.75rem 2rem', background: 'rgba(255,60,60,0.05)', borderBottom: '1px solid rgba(255,60,60,0.2)' }}>
+          <div style={{ padding: '0.75rem 1.5rem', background: 'rgba(255,60,60,0.05)', borderBottom: '1px solid rgba(255,60,60,0.2)' }} className="settings-section-label">
             <span style={{ fontSize: '0.6rem', letterSpacing: '0.18em', color: 'rgba(255,100,100,0.7)', textTransform: 'uppercase' }}>
               Danger zone
             </span>
@@ -368,7 +434,8 @@ export default function SettingsPage() {
               padding: '0.4rem 0.9rem', border: '1px solid rgba(255,60,60,0.3)',
               background: 'transparent', color: 'rgba(255,100,100,0.7)',
               cursor: 'pointer', textDecoration: 'none',
-              fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 600,
+              fontFamily: FONT, fontWeight: 600,
+              display: 'inline-block',
             }}>
               Sign out
             </a>
@@ -378,7 +445,7 @@ export default function SettingsPage() {
             description="Permanently deletes your account and all synced activities from SleeveMap. This cannot be undone. Your Strava data is not affected."
           >
             {showDeleteConfirm ? (
-              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.5rem' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '0.5rem' }}>
                 <span style={{ fontSize: '0.65rem', color: 'rgba(255,100,100,0.8)', letterSpacing: '0.04em' }}>
                   Are you sure? This is permanent.
                 </span>
@@ -389,7 +456,7 @@ export default function SettingsPage() {
                       fontSize: '0.6rem', letterSpacing: '0.1em', textTransform: 'uppercase',
                       padding: '0.4rem 0.9rem', border: '1px solid var(--border)',
                       background: 'transparent', color: 'var(--muted)', cursor: 'pointer',
-                      fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 600,
+                      fontFamily: FONT, fontWeight: 600,
                     }}
                   >
                     Cancel
@@ -401,7 +468,7 @@ export default function SettingsPage() {
                       fontSize: '0.6rem', letterSpacing: '0.1em', textTransform: 'uppercase',
                       padding: '0.4rem 0.9rem', border: 'none',
                       background: 'rgba(255,60,60,0.8)', color: '#fff', cursor: 'pointer',
-                      fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 600,
+                      fontFamily: FONT, fontWeight: 600,
                     }}
                   >
                     {deleting ? 'Deleting...' : 'Yes, delete everything'}
@@ -416,7 +483,7 @@ export default function SettingsPage() {
                   padding: '0.4rem 0.9rem', border: '1px solid rgba(255,60,60,0.3)',
                   background: 'transparent', color: 'rgba(255,100,100,0.7)',
                   cursor: 'pointer',
-                  fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 600,
+                  fontFamily: FONT, fontWeight: 600,
                 }}
               >
                 Delete account
@@ -430,10 +497,11 @@ export default function SettingsPage() {
       {/* Toast */}
       {toast && (
         <div style={{
-          position: 'fixed', bottom: '1.5rem', right: '1.5rem',
+          position: 'fixed', bottom: '1.5rem', right: '1.5rem', left: '1.5rem',
           background: 'var(--sleeve-dark)', border: '1px solid var(--border)',
           padding: '0.75rem 1.25rem', fontSize: '0.72rem',
           letterSpacing: '0.05em', color: 'var(--text)', zIndex: 200,
+          maxWidth: '360px', marginLeft: 'auto',
         }}>
           <span style={{ color: 'var(--sleeve-gold)', marginRight: '0.5rem' }}>⬤</span>
           {toast}

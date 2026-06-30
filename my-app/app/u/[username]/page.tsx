@@ -123,7 +123,6 @@ export default function MapPage() {
   const [loading, setLoading] = useState(true)
   const [notFound, setNotFound] = useState(false)
   const [isPrivate, setIsPrivate] = useState(false)
-  // Multi-select: empty set = all types shown
   const [selectedTypes, setSelectedTypes] = useState<Set<string>>(new Set())
   const [activityColors, setActivityColors] = useState<Record<string, string>>({
     Run: '#FC4C02', Ride: '#3498DB', Hike: '#27AE60', Walk: '#F39C12', Swim: '#9B59B6',
@@ -134,16 +133,15 @@ export default function MapPage() {
   const [showFitButton, setShowFitButton] = useState(false)
   const [selectedStyle, setSelectedStyle] = useState(MAP_STYLES[0].value)
   const [years, setYears] = useState<string[]>([])
+  const [filtersOpen, setFiltersOpen] = useState(false)
   const isFirstRender = useRef(true)
 
   async function saveColor(type: string, color: string) {
     const updated = { ...activityColors, [type]: color }
     setActivityColors(updated)
-    // Update map paint immediately
     if (map.current?.getLayer('activities-lines')) {
       map.current.setPaintProperty('activities-lines', 'line-color', buildColorExpression(updated))
     }
-    // Persist to DB
     await fetch('/api/me', {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
@@ -166,11 +164,8 @@ export default function MapPage() {
   function toggleType(type: string) {
     setSelectedTypes(prev => {
       const next = new Set(prev)
-      if (next.has(type)) {
-        next.delete(type)
-      } else {
-        next.add(type)
-      }
+      if (next.has(type)) next.delete(type)
+      else next.add(type)
       return next
     })
   }
@@ -179,7 +174,6 @@ export default function MapPage() {
     if (!map.current || allFeatures.current.length === 0) return
 
     const filtered = allFeatures.current.filter(f => {
-      // Empty set = all types
       const matchType = types.size === 0 || types.has(f.properties.type)
       const matchYear = year === 'All' ||
         new Date(f.properties.start_date).getFullYear().toString() === year
@@ -197,7 +191,6 @@ export default function MapPage() {
     if (!isFirstRender.current) setShowFitButton(true)
   }
 
-  // Initialise map and load data
   useEffect(() => {
     if (map.current || !mapContainer.current) return
 
@@ -235,7 +228,6 @@ export default function MapPage() {
 
       addLayers(map.current, data.geojson.features)
 
-      // Apply saved custom colors right after layers are added
       if (data.user.activity_colors && Object.keys(data.user.activity_colors).length > 0) {
         const merged = { Run: '#FC4C02', Ride: '#3498DB', Hike: '#27AE60', Walk: '#F39C12', Swim: '#9B59B6', ...data.user.activity_colors }
         map.current.setPaintProperty('activities-lines', 'line-color', [
@@ -289,13 +281,11 @@ export default function MapPage() {
     return () => { map.current?.remove(); map.current = null }
   }, [username])
 
-  // Apply filters when types or year changes
   useEffect(() => {
     if (isFirstRender.current) return
     applyFilters(selectedTypes, selectedYear)
   }, [selectedTypes, selectedYear])
 
-  // Switch map style — re-add layers after style loads
   useEffect(() => {
     if (!map.current || isFirstRender.current) return
     map.current.setStyle(selectedStyle)
@@ -339,9 +329,11 @@ export default function MapPage() {
     <div style={{ height: '100vh', background: 'var(--bg)', display: 'flex', flexDirection: 'column' }}>
       <Navbar />
 
-      {/* Profile header — top left */}
+      {/* ── DESKTOP LAYOUT (≥ 640px) ── */}
+
+      {/* Profile header — top left, desktop only */}
       {profile && (
-        <div style={{
+        <div className="desktop-panel profile-panel" style={{
           position: 'absolute', top: '5rem', left: '1.5rem', zIndex: 10,
           display: 'flex', alignItems: 'center', gap: '0.75rem',
           background: 'var(--panel-bg)', border: '1px solid var(--border)',
@@ -387,15 +379,14 @@ export default function MapPage() {
         </div>
       )}
 
-      {/* Filters — top centre */}
-      <div style={{
+      {/* Filters — top centre, desktop only */}
+      <div className="desktop-panel filters-panel" style={{
         position: 'absolute', top: '5rem', left: '50%',
         transform: 'translateX(-50%)', zIndex: 10,
         display: 'flex', gap: '0.5rem', alignItems: 'center',
         background: 'var(--panel-bg)', border: '1px solid var(--border)',
         padding: '0.6rem 1rem', backdropFilter: 'blur(12px)',
       }}>
-        {/* All toggle — clears selection */}
         <button onClick={() => setSelectedTypes(new Set())} style={{
           fontSize: '0.65rem', letterSpacing: '0.1em', textTransform: 'uppercase',
           padding: '0.35rem 0.75rem', cursor: 'pointer', border: 'none',
@@ -409,7 +400,6 @@ export default function MapPage() {
 
         <div style={{ width: '1px', height: '16px', background: 'var(--border)' }} />
 
-        {/* Individual type toggles with optional color swatches */}
         {ALL_SPORT_TYPES.map(t => {
           const active = selectedTypes.has(t)
           const color = activityColors[t] ?? TYPE_COLORS[t]
@@ -426,13 +416,11 @@ export default function MapPage() {
               }}>
                 {t}
               </button>
-              {/* Color swatch — only shown for profile owner */}
               {profile?.is_owner && (
                 <label title={`Change ${t} colour`} style={{
                   width: 16, height: 6, borderRadius: '2px',
                   background: color, cursor: 'pointer', display: 'block',
-                  border: '1px solid rgba(0,0,0,0.3)',
-                  transition: 'transform 0.1s',
+                  border: '1px solid rgba(0,0,0,0.3)', transition: 'transform 0.1s',
                 }}>
                   <input
                     type="color"
@@ -448,7 +436,6 @@ export default function MapPage() {
 
         <div style={{ width: '1px', height: '16px', background: 'var(--border)' }} />
 
-        {/* Year filter */}
         <select value={selectedYear} onChange={e => setSelectedYear(e.target.value)} style={{
           background: 'transparent', border: 'none', color: 'var(--muted)',
           fontSize: '0.65rem', letterSpacing: '0.1em', textTransform: 'uppercase',
@@ -460,8 +447,8 @@ export default function MapPage() {
         </select>
       </div>
 
-      {/* Map style switcher — top right */}
-      <div style={{
+      {/* Map style switcher — top right, desktop only */}
+      <div className="desktop-panel style-panel" style={{
         position: 'absolute', top: '5rem', right: '1.5rem', zIndex: 10,
         display: 'flex', gap: '0.5rem', alignItems: 'center',
         background: 'var(--panel-bg)', border: '1px solid var(--border)',
@@ -480,6 +467,159 @@ export default function MapPage() {
           </button>
         ))}
       </div>
+
+      {/* ── MOBILE LAYOUT (< 640px) ── */}
+
+      {/* Mobile top bar: profile + style switcher side by side */}
+      <div className="mobile-panel mobile-topbar" style={{
+        position: 'absolute', top: '5rem', left: '0.75rem', right: '0.75rem', zIndex: 10,
+        display: 'none', alignItems: 'center', justifyContent: 'space-between', gap: '0.5rem',
+      }}>
+        {/* Profile compact */}
+        {profile && (
+          <div style={{
+            display: 'flex', alignItems: 'center', gap: '0.5rem',
+            background: 'var(--panel-bg)', border: '1px solid var(--border)',
+            padding: '0.5rem 0.75rem', backdropFilter: 'blur(12px)', flex: 1, minWidth: 0,
+          }}>
+            {profile.avatar_url ? (
+              <img src={profile.avatar_url} alt={profile.full_name}
+                style={{ width: 24, height: 24, borderRadius: '50%', objectFit: 'cover', flexShrink: 0 }} />
+            ) : (
+              <div style={{
+                width: 24, height: 24, borderRadius: '50%', flexShrink: 0,
+                background: 'rgba(252,76,2,0.2)', border: '1px solid rgba(252,76,2,0.3)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700,
+                fontSize: '0.6rem', color: 'var(--orange)',
+              }}>
+                {profile.full_name?.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase()}
+              </div>
+            )}
+            <div style={{ minWidth: 0 }}>
+              <div style={{
+                fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 600,
+                fontSize: '0.8rem', color: 'var(--text)',
+                overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+              }}>
+                {profile.full_name}
+              </div>
+            </div>
+            {profile.is_owner && (
+              <Link href="/settings" style={{
+                marginLeft: 'auto', fontSize: '0.5rem', letterSpacing: '0.1em',
+                textTransform: 'uppercase', textDecoration: 'none', flexShrink: 0,
+                padding: '0.2rem 0.5rem', border: '1px solid var(--border)',
+                color: 'var(--muted)', fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 600,
+              }}>
+                Settings
+              </Link>
+            )}
+          </div>
+        )}
+
+        {/* Filter toggle button */}
+        <button
+          onClick={() => setFiltersOpen(o => !o)}
+          style={{
+            background: filtersOpen ? 'var(--sleeve-gold)' : 'var(--panel-bg)',
+            border: '1px solid var(--border)',
+            color: filtersOpen ? 'var(--bg)' : 'var(--muted)',
+            padding: '0.5rem 0.75rem', cursor: 'pointer', flexShrink: 0,
+            fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700,
+            fontSize: '0.65rem', letterSpacing: '0.1em', textTransform: 'uppercase',
+            backdropFilter: 'blur(12px)', transition: 'all 0.15s',
+          }}
+          aria-label="Toggle filters"
+        >
+          ⚙ Filter
+        </button>
+      </div>
+
+      {/* Mobile filter drawer */}
+      {filtersOpen && (
+        <div className="mobile-panel mobile-filter-drawer" style={{
+          position: 'absolute', top: 'calc(5rem + 46px + 0.5rem)', left: '0.75rem', right: '0.75rem',
+          zIndex: 10, background: 'var(--panel-bg)', border: '1px solid var(--border)',
+          backdropFilter: 'blur(12px)', padding: '0.75rem',
+          display: 'none', flexDirection: 'column', gap: '0.75rem',
+        }}>
+          {/* Activity type filters */}
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem', alignItems: 'center' }}>
+            <button onClick={() => setSelectedTypes(new Set())} style={{
+              fontSize: '0.65rem', letterSpacing: '0.1em', textTransform: 'uppercase',
+              padding: '0.35rem 0.75rem', cursor: 'pointer', border: 'none',
+              fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 600,
+              background: selectedTypes.size === 0 ? 'var(--sleeve-gold)' : 'rgba(255,255,255,0.06)',
+              color: selectedTypes.size === 0 ? 'var(--text)' : 'var(--muted)',
+            }}>
+              All
+            </button>
+            {ALL_SPORT_TYPES.map(t => {
+              const active = selectedTypes.has(t)
+              const color = activityColors[t] ?? TYPE_COLORS[t]
+              return (
+                <div key={t} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '3px' }}>
+                  <button onClick={() => toggleType(t)} style={{
+                    fontSize: '0.65rem', letterSpacing: '0.1em', textTransform: 'uppercase',
+                    padding: '0.35rem 0.75rem', cursor: 'pointer',
+                    fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 600,
+                    background: active ? color + '33' : 'rgba(255,255,255,0.06)',
+                    color: active ? color : 'var(--muted)',
+                    border: active ? `1px solid ${color}66` : '1px solid transparent',
+                  }}>
+                    {t}
+                  </button>
+                  {profile?.is_owner && (
+                    <label title={`Change ${t} colour`} style={{
+                      width: 16, height: 6, borderRadius: '2px',
+                      background: color, cursor: 'pointer', display: 'block',
+                      border: '1px solid rgba(0,0,0,0.3)',
+                    }}>
+                      <input
+                        type="color"
+                        value={color}
+                        onChange={e => saveColor(t, e.target.value)}
+                        style={{ opacity: 0, width: 0, height: 0, position: 'absolute' }}
+                      />
+                    </label>
+                  )}
+                </div>
+              )
+            })}
+          </div>
+
+          {/* Year + map style row */}
+          <div style={{
+            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+            borderTop: '1px solid var(--border)', paddingTop: '0.6rem', gap: '0.5rem',
+          }}>
+            <select value={selectedYear} onChange={e => setSelectedYear(e.target.value)} style={{
+              background: 'transparent', border: '1px solid var(--border)',
+              color: 'var(--muted)', fontSize: '0.65rem', letterSpacing: '0.1em',
+              textTransform: 'uppercase', fontFamily: "'Barlow Condensed', sans-serif",
+              fontWeight: 600, cursor: 'pointer', outline: 'none', padding: '0.3rem 0.5rem',
+            }}>
+              <option value="All">All years</option>
+              {years.map(y => <option key={y} value={y}>{y}</option>)}
+            </select>
+
+            <div style={{ display: 'flex', gap: '0.35rem' }}>
+              {MAP_STYLES.map(s => (
+                <button key={s.value} onClick={() => setSelectedStyle(s.value)} style={{
+                  fontSize: '0.6rem', letterSpacing: '0.08em', textTransform: 'uppercase',
+                  padding: '0.3rem 0.6rem', cursor: 'pointer', border: 'none',
+                  fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 600,
+                  background: selectedStyle === s.value ? 'var(--sleeve-gold)' : 'rgba(255,255,255,0.06)',
+                  color: selectedStyle === s.value ? 'var(--text)' : 'var(--muted)',
+                }}>
+                  {s.label}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Fit to results button */}
       {showFitButton && !loading && (
@@ -549,9 +689,9 @@ export default function MapPage() {
         </div>
       )}
 
-      {/* Hover tooltip — bottom right */}
+      {/* Hover tooltip — bottom right on desktop, bottom centre on mobile */}
       {hovered && (
-        <div style={{
+        <div className="hover-tooltip" style={{
           position: 'absolute', bottom: '2rem', right: '1.5rem',
           background: 'var(--panel-bg)', border: '1px solid var(--border)',
           padding: '0.85rem 1.1rem', minWidth: '200px', backdropFilter: 'blur(8px)',
@@ -602,6 +742,33 @@ export default function MapPage() {
         }
         .mapboxgl-ctrl-attrib a { color: var(--muted) !important; }
         .mapboxgl-ctrl-bottom-left { display: none; }
+
+        /* ── Responsive breakpoint: mobile < 640px ── */
+        @media (max-width: 639px) {
+          /* Hide desktop panels */
+          .desktop-panel {
+            display: none !important;
+          }
+
+          /* Show mobile panels */
+          .mobile-panel {
+            display: flex !important;
+          }
+
+          /* Mobile filter drawer */
+          .mobile-filter-drawer {
+            display: flex !important;
+          }
+
+          /* Shift tooltip to bottom centre on mobile so it
+             doesn't fight the activity count badge */
+          .hover-tooltip {
+            right: 0.75rem !important;
+            left: 0.75rem !important;
+            bottom: 4.5rem !important;
+            min-width: unset !important;
+          }
+        }
       `}</style>
     </div>
   )

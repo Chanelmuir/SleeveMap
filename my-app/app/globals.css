@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@source "../app";
 
 @theme {
   --sleeve-dark: #070f10;

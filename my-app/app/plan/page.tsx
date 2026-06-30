@@ -1010,7 +1010,7 @@ export default function RoutePlannerPage() {
             className="flex md:hidden"
             onClick={() => setMobilePanel(v => !v)}
             style={{
-              position: 'absolute', bottom: '1.5rem', right: '1.5rem', zIndex: 20,
+              position: 'absolute', top: '1.5rem', left: '0.8rem', zIndex: 20,
               width: 48, height: 48, borderRadius: '50%',
               background: mobilePanel ? 'var(--sleeve-gold)' : 'var(--panel-bg)',
               border: '1px solid var(--sleeve-gold)',
@@ -1025,7 +1025,7 @@ export default function RoutePlannerPage() {
             {mobilePanel ? '✕' : '☰'}
           </button>
 
-          {/* Mobile slide-up drawer — same content as desktop sidebar */}
+          {/* Mobile slide-up drawer */}
           {mobilePanel && (
             <div
               className="md:hidden"

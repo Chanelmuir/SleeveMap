@@ -40,7 +40,7 @@ interface Waypoint {
   nextProfile: ProfileValue
 }
 
-interface RouteStats { distanceKm: number }
+interface RouteStats { distanceKm: number; elevationGainM: number | null }
 interface PublicProfile { id: string; username: string; full_name: string; avatar_url: string; activity_count: number }
 
 function haversineDistance(a: [number, number], b: [number, number]): number {
@@ -92,6 +92,81 @@ async function fetchSegment(from: Waypoint, to: Waypoint): Promise<{ coords: [nu
 }
 
 function formatDistance(km: number) { return km >= 1 ? `${km.toFixed(2)} km` : `${Math.round(km * 1000)} m` }
+
+const ELEVATION_ZOOM = 14
+const elevationTileCache = new Map<string, Promise<Uint8ClampedArray | null>>()
+
+function loadTilePixels(z: number, x: number, y: number): Promise<Uint8ClampedArray | null> {
+  const key = `${z}/${x}/${y}`
+  if (elevationTileCache.has(key)) return elevationTileCache.get(key)!
+
+  const promise = new Promise<Uint8ClampedArray | null>((resolve) => {
+    const img = new Image()
+    img.crossOrigin = 'anonymous'
+    img.onload = () => {
+      const canvas = document.createElement('canvas')
+      canvas.width = img.width
+      canvas.height = img.height
+      const ctx = canvas.getContext('2d')
+      if (!ctx) { resolve(null); return }
+      ctx.drawImage(img, 0, 0)
+      try {
+        resolve(ctx.getImageData(0, 0, img.width, img.height).data)
+      } catch {
+        resolve(null)
+      }
+    }
+    img.onerror = () => resolve(null)
+    img.src = `https://api.mapbox.com/v4/mapbox.terrain-rgb/${z}/${x}/${y}.pngraw?access_token=${mapboxgl.accessToken}`
+  })
+
+  elevationTileCache.set(key, promise)
+  return promise
+}
+
+async function getElevation(lng: number, lat: number, zoom = ELEVATION_ZOOM): Promise<number | null> {
+  const n = Math.pow(2, zoom)
+  const latRad = (lat * Math.PI) / 180
+  const xFloat = ((lng + 180) / 360) * n
+  const yFloat = ((1 - Math.log(Math.tan(latRad) + 1 / Math.cos(latRad)) / Math.PI) / 2) * n
+  const x = Math.floor(xFloat)
+  const y = Math.floor(yFloat)
+
+  const pixels = await loadTilePixels(zoom, x, y)
+  if (!pixels) return null
+
+  const tileSize = Math.sqrt(pixels.length / 4)
+  const px = Math.min(tileSize - 1, Math.floor((xFloat - x) * tileSize))
+  const py = Math.min(tileSize - 1, Math.floor((yFloat - y) * tileSize))
+  const idx = (py * tileSize + px) * 4
+  const r = pixels[idx]
+  const g = pixels[idx + 1]
+  const b = pixels[idx + 2]
+  return -10000 + (r * 256 * 256 + g * 256 + b) * 0.1
+}
+
+function sampleCoords(coords: [number, number][], maxSamples = 60): [number, number][] {
+  if (coords.length <= maxSamples) return coords
+  const step = (coords.length - 1) / (maxSamples - 1)
+  return Array.from({ length: maxSamples }, (_, i) => coords[Math.round(i * step)])
+}
+
+async function computeElevationGain(coords: [number, number][]): Promise<number | null> {
+  if (coords.length < 2) return null
+  const sampled = sampleCoords(coords)
+  const elevations = await Promise.all(sampled.map(([lng, lat]) => getElevation(lng, lat)))
+  if (elevations.some(e => e === null)) return null
+
+  let gain = 0
+  const NOISE_THRESHOLD = 1 // meters — ignore jitter from tile resolution
+  for (let i = 1; i < elevations.length; i++) {
+    const diff = (elevations[i] as number) - (elevations[i - 1] as number)
+    if (diff > NOISE_THRESHOLD) gain += diff
+  }
+  return Math.round(gain)
+}
+
+function formatElevation(m: number) { return `${Math.round(m)} m` }
 
 function toGPX(coords: [number, number][], name: string): string {
   const points = coords.map(([lng, lat]) => `    <trkpt lat="${lat.toFixed(6)}" lon="${lng.toFixed(6)}"></trkpt>`).join('\n')
@@ -288,8 +363,12 @@ export default function RoutePlannerPage() {
     const totalDistanceM = segments.reduce((s, seg) => s + seg.distanceM, 0)
     const source = map.current.getSource('route') as mapboxgl.GeoJSONSource
     source?.setData({ type: 'Feature', geometry: { type: 'LineString', coordinates: allCoords }, properties: {} })
-    setRouteStats({ distanceKm: totalDistanceM / 1000 })
+    setRouteStats({ distanceKm: totalDistanceM / 1000, elevationGainM: null })
     setLoading(false)
+
+    computeElevationGain(allCoords).then(gain => {
+      setRouteStats(prev => (prev ? { ...prev, elevationGainM: gain } : prev))
+    })
   }, [])
 
   async function shareRoute() {
@@ -715,12 +794,22 @@ export default function RoutePlannerPage() {
 
       {/* Stats */}
       {routeStats && (
-        <div style={{ padding: '1rem 1.5rem', borderBottom: '1px solid var(--border)' }}>
-          <div style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: '1.6rem', color: 'var(--text)', lineHeight: 1 }}>
-            {formatDistance(routeStats.distanceKm)}
+        <div style={{ padding: '1rem 1.5rem', borderBottom: '1px solid var(--border)', display: 'flex', gap: '1.5rem' }}>
+          <div>
+            <div style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: '1.6rem', color: 'var(--text)', lineHeight: 1 }}>
+              {formatDistance(routeStats.distanceKm)}
+            </div>
+            <div style={{ fontSize: '0.58rem', letterSpacing: '0.12em', color: 'var(--muted)', textTransform: 'uppercase', marginTop: '0.25rem' }}>
+              Distance
+            </div>
           </div>
-          <div style={{ fontSize: '0.58rem', letterSpacing: '0.12em', color: 'var(--muted)', textTransform: 'uppercase', marginTop: '0.25rem' }}>
-            Distance
+          <div>
+            <div style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: '1.6rem', color: 'var(--text)', lineHeight: 1 }}>
+              {routeStats.elevationGainM === null ? '…' : `+${formatElevation(routeStats.elevationGainM)}`}
+            </div>
+            <div style={{ fontSize: '0.58rem', letterSpacing: '0.12em', color: 'var(--muted)', textTransform: 'uppercase', marginTop: '0.25rem' }}>
+              Elevation
+            </div>
           </div>
         </div>
       )}

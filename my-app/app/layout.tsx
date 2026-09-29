@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { Barlow_Condensed, DM_Mono } from 'next/font/google'
 import { Analytics } from "@vercel/analytics/next"
+import StravaNotice from './components/StravaNotice'
 import './globals.css'
 
 const barlowCondensed = Barlow_Condensed({
@@ -43,7 +44,10 @@ export default function RootLayout({
         <Analytics />
       </head>
       
-      <body style={{ background: 'var(--sleeve-dark)' }}>{children}</body>
+      <body style={{ background: 'var(--sleeve-dark)' }}>
+        {children}
+        <StravaNotice />
+      </body>
     </html>
   )
 }

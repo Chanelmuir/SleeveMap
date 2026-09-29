@@ -3,6 +3,15 @@
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import Navbar from './components/Navbar'
+import { STRAVA_ENABLED, STRAVA_DISABLED_MESSAGE } from './lib/strava'
+
+const heroButtonStyle: React.CSSProperties = {
+  display: 'inline-flex', alignItems: 'center', gap: '0.6rem',
+  background: 'var(--orange)', color: '#fff', textDecoration: 'none',
+  fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 600,
+  fontSize: '0.95rem', letterSpacing: '0.08em', textTransform: 'uppercase',
+  padding: '0.9rem 2rem', borderRadius: '2px',
+}
 
 interface SiteStats {
   totalActivities: number
@@ -111,19 +120,31 @@ export default function HomePage() {
             <p style={{ fontSize: '0.85rem', lineHeight: 1.8, color: 'var(--muted)', maxWidth: '440px', margin: '0 auto 2.5rem' }}>
               Connect your Strava and see every road you&apos;ve ever covered — stitched together on a single map. Streets are the arms of a city, your runs are the sleeves keeping them warm.
             </p>
-            <Link href={loggedIn ? '/map' : '/api/auth/strava'} style={{
-              display: 'inline-flex', alignItems: 'center', gap: '0.6rem',
-              background: 'var(--orange)', color: '#fff', textDecoration: 'none',
-              fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 600,
-              fontSize: '0.95rem', letterSpacing: '0.08em', textTransform: 'uppercase',
-              padding: '0.9rem 2rem', borderRadius: '2px',
-            }}>
-              {loggedIn ? null : <StravaIcon />}
-              {loggedIn ? 'You\'re signed in! View your sleeve' : 'Connect with Strava'}
-            </Link>
+            {loggedIn || STRAVA_ENABLED ? (
+              <Link href={loggedIn ? '/map' : '/api/auth/strava'} style={heroButtonStyle}>
+                {loggedIn ? null : <StravaIcon />}
+                {loggedIn ? 'You\'re signed in! View your sleeve' : 'Connect with Strava'}
+              </Link>
+            ) : (
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', justifyContent: 'center' }}>
+                <span
+                  aria-disabled="true"
+                  title={STRAVA_DISABLED_MESSAGE}
+                  style={{ ...heroButtonStyle, background: 'var(--surface-strong)', color: 'var(--disabled-fg)', cursor: 'not-allowed' }}
+                >
+                  <StravaIcon />
+                  Connect with Strava
+                </span>
+                <Link href="/explore" style={{ ...heroButtonStyle, background: 'transparent', color: 'var(--text)', border: '1px solid var(--border)' }}>
+                  Explore public maps
+                </Link>
+              </div>
+            )}
             {!loggedIn && (
               <p style={{ marginTop: '1.2rem', fontSize: '0.7rem', color: 'var(--muted)', letterSpacing: '0.05em' }}>
-                Free to use &nbsp;·&nbsp; Your data, your map
+                {STRAVA_ENABLED
+                  ? <>Free to use &nbsp;·&nbsp; Your data, your map</>
+                  : 'New sign-ups are paused — Strava now charges for API access'}
               </p>
             )}
           </div>

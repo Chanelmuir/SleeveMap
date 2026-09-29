@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import polyline from '@mapbox/polyline'
+import { STRAVA_ENABLED } from '@/app/lib/strava'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -29,6 +30,9 @@ export async function GET(req: NextRequest) {
 // POST — Strava calls this whenever an event happens
 // ============================================================
 export async function POST(req: NextRequest) {
+  // Acknowledge but ignore events — returning 200 stops Strava retrying
+  if (!STRAVA_ENABLED) return NextResponse.json({ ok: true, ignored: true })
+
   const event = await req.json()
 
   // We only care about activity creation/updates, not deletions or athlete events

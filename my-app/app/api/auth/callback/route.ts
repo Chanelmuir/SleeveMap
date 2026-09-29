@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { STRAVA_ENABLED } from '@/app/lib/strava'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -25,6 +26,10 @@ async function generateUsername(stravaId: number): Promise<string> {
 }
 
 export async function GET(req: NextRequest) {
+  if (!STRAVA_ENABLED) {
+    return NextResponse.redirect(new URL('/?error=strava_disabled', req.url))
+  }
+
   const { searchParams } = new URL(req.url)
   const code = searchParams.get('code')
 

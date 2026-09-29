@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import ThemeToggle from './ThemeToggle'
+import { STRAVA_ENABLED, STRAVA_DISABLED_MESSAGE } from '../lib/strava'
 
 interface UserProfile {
   username: string
@@ -24,9 +25,12 @@ export default function Navbar() {
       .catch(() => {})
   }, [])
 
-  useEffect(() => {
+  // Close the mobile menu on navigation (adjusting state during render, not in an effect)
+  const [prevPathname, setPrevPathname] = useState(pathname)
+  if (pathname !== prevPathname) {
+    setPrevPathname(pathname)
     setMobileOpen(false)
-  }, [pathname])
+  }
 
   const navLink = (href: string, label: string, mobile = false) => {
     const active = pathname === href
@@ -96,24 +100,40 @@ export default function Navbar() {
     </Link>
   )
 
-  const connectButton = (
-    <Link
-      href="/api/auth/strava"
-      onClick={() => setMobileOpen(false)}
-      style={{
-        display: 'inline-flex', alignItems: 'center', gap: '0.5rem',
-        background: 'var(--orange)', color: '#fff', textDecoration: 'none',
-        fontFamily: "'Barlow Condensed', sans-serif",
-        fontWeight: 600, fontSize: '0.8rem',
-        letterSpacing: '0.08em', textTransform: 'uppercase',
-        padding: '0.45rem 1rem', borderRadius: '2px', width: 'fit-content',
-      }}
-    >
+  const connectStyle: React.CSSProperties = {
+    display: 'inline-flex', alignItems: 'center', gap: '0.5rem',
+    background: 'var(--orange)', color: '#fff', textDecoration: 'none',
+    fontFamily: "'Barlow Condensed', sans-serif",
+    fontWeight: 600, fontSize: '0.8rem',
+    letterSpacing: '0.08em', textTransform: 'uppercase',
+    padding: '0.45rem 1rem', borderRadius: '2px', width: 'fit-content',
+  }
+
+  const connectContent = (
+    <>
       <svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14" aria-hidden="true">
         <path d="M15.387 17.944l-2.089-4.116h-3.065L15.387 24l5.15-10.172h-3.066m-7.008-5.599l2.836 5.598h4.172L10.463 0l-7 13.828h4.169" />
       </svg>
       Connect Strava
+    </>
+  )
+
+  const connectButton = STRAVA_ENABLED ? (
+    <Link href="/api/auth/strava" onClick={() => setMobileOpen(false)} style={connectStyle}>
+      {connectContent}
     </Link>
+  ) : (
+    <span
+      aria-disabled="true"
+      title={STRAVA_DISABLED_MESSAGE}
+      style={{
+        ...connectStyle,
+        background: 'var(--surface-strong)', color: 'var(--disabled-fg)',
+        cursor: 'not-allowed',
+      }}
+    >
+      {connectContent}
+    </span>
   )
 
   return (

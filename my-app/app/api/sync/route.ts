@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import polyline from '@mapbox/polyline'
+import { STRAVA_ENABLED, STRAVA_DISABLED_MESSAGE } from '@/app/lib/strava'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -18,7 +19,22 @@ function decodePolyline(encoded: string): [number, number][] | null {
   }
 }
 
-async function fetchActivityPage(accessToken: string, page: number): Promise<any[]> {
+// Subset of Strava's SummaryActivity that we actually read
+interface StravaActivity {
+  id: number
+  name: string
+  type: string
+  sport_type?: string
+  start_date: string
+  distance: number
+  moving_time: number
+  total_elevation_gain: number
+  location_city?: string | null
+  location_country?: string | null
+  map?: { summary_polyline?: string | null }
+}
+
+async function fetchActivityPage(accessToken: string, page: number): Promise<StravaActivity[]> {
   const res = await fetch(
     `https://www.strava.com/api/v3/athlete/activities?per_page=200&page=${page}`,
     { headers: { Authorization: `Bearer ${accessToken}` } }
@@ -66,6 +82,10 @@ async function getValidToken(userId: string): Promise<string> {
 }
 
 export async function POST(req: NextRequest) {
+  if (!STRAVA_ENABLED) {
+    return NextResponse.json({ error: STRAVA_DISABLED_MESSAGE }, { status: 503 })
+  }
+
   const userId = req.cookies.get('user_id')?.value
   if (!userId) {
     return NextResponse.json({ error: 'Not authenticated' }, { status: 401 })
@@ -85,7 +105,7 @@ export async function POST(req: NextRequest) {
       const rows = activities
         .filter(a => a.map?.summary_polyline)
         .map(a => {
-          const coords = decodePolyline(a.map.summary_polyline)
+          const coords = decodePolyline(a.map?.summary_polyline ?? '')
           if (!coords) return null
 
           return {
@@ -137,8 +157,9 @@ export async function POST(req: NextRequest) {
       skipped: totalSkipped,
       pages: page,
     })
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error('Sync error:', err)
-    return NextResponse.json({ error: err.message }, { status: 500 })
+    const message = err instanceof Error ? err.message : 'Sync failed'
+    return NextResponse.json({ error: message }, { status: 500 })
   }
 }

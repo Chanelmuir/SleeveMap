@@ -4,6 +4,9 @@ A full-stack activity mapping platform built on the Strava API. Connect your Str
 
 ![SleeveMap](my-app/public/example_map.png)
 
+> **Project status — Strava integration disabled.**
+> Strava now charges for API access, so sign-in with Strava, activity sync and webhook ingestion have been switched off. Everything synced before the change is still live: public maps, the Explorer and the route planner all work from the existing database. The integration code is intact and documented below in [How the Strava integration worked](#how-the-strava-integration-worked). It can be re-enabled by setting `STRAVA_ENABLED = true` in [`my-app/app/lib/strava.ts`](my-app/app/lib/strava.ts).
+
 ---
 
 ## Features
@@ -14,7 +17,7 @@ A full-stack activity mapping platform built on the Strava API. Connect your Str
 - **Route planner** — plan new routes with snap-to-road routing (run, cycle, or straight line), per-segment profile switching, GPX export, and friend heatmap overlays
 - **Activity type filters** — multi-select toggles to show/hide run, ride, hike, walk, and swim routes
 - **Custom colours** — personalise the colour of each activity type on your map
-- **Real-time sync** — new Strava activities appear automatically via webhook
+- **Real-time sync** — new Strava activities appear automatically via webhook *(disabled, see project status)*
 - **Favourites** — star public athletes to overlay their heatmaps in the route planner
 
 ---
@@ -29,6 +32,92 @@ A full-stack activity mapping platform built on the Strava API. Connect your Str
 | Auth | Strava OAuth 2.0, httpOnly cookies |
 | Hosting | Vercel |
 | Strava integration | REST API + webhooks |
+
+---
+
+## How the Strava integration worked
+
+The Strava side of SleeveMap had three parts: OAuth sign-in, a one-off full history sync, and a webhook for real-time updates. All three wrote into the same PostGIS `activities` table, and every map, profile and planner overlay reads from that table. That's why the site keeps working after the integration was switched off.
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor U as User
+    participant App as SleeveMap (Next.js on Vercel)
+    participant S as Strava API
+    participant DB as Supabase (Postgres + PostGIS)
+
+    Note over U,DB: 1. OAuth sign-in
+    U->>App: Click "Connect with Strava"
+    App->>S: Redirect to /oauth/authorize (scope: read, activity:read_all)
+    S->>App: Redirect to /api/auth/callback?code=…
+    App->>S: POST /oauth/token (exchange code)
+    S-->>App: access_token, refresh_token, expires_at, athlete
+    App->>DB: Upsert users row (tokens + profile)
+    App-->>U: Set httpOnly user_id cookie, redirect to /map
+
+    Note over U,DB: 2. Initial history sync (first login only)
+    App->>App: POST /api/sync (background)
+    loop 200 activities per page until empty
+        App->>S: GET /athlete/activities?page=n
+        S-->>App: Activities + summary_polyline
+        App->>App: Decode polyline → [lng, lat][]
+        App->>DB: rpc upsert_activities(rows)
+    end
+    App->>DB: Set users.last_synced_at
+
+    Note over U,DB: 3. Real-time webhook
+    U->>S: Record a new activity
+    S->>App: POST /api/webhook {object_id, owner_id, aspect_type}
+    App->>DB: Look up user by strava_id
+    alt create / update
+        App->>S: GET /activities/{id}
+        App->>DB: rpc upsert_activities([row])
+    else delete
+        App->>DB: DELETE activity by strava_id
+    end
+    App-->>S: 200 OK (always, so Strava doesn't retry)
+```
+
+### 1. OAuth sign-in: `api/auth/strava` → `api/auth/callback`
+
+- `/api/auth/strava` redirects to Strava's authorize page asking for `read,activity:read_all`, so private activities are included too.
+- `/api/auth/callback` exchanges the `code` for an access token, a refresh token and an expiry time. It upserts the athlete into `users`, keyed on `strava_id`. New users get a username from their Strava handle, or a generated one if that's taken.
+- The session is a 30-day `httpOnly`, `sameSite=lax` cookie holding the internal user id. Strava tokens never reach the browser.
+- If the user has no activities yet, the callback starts a background sync and redirects to `/map?syncing=true`, which shows a progress toast.
+
+### 2. Full history sync: `api/sync`
+
+- `getValidToken()` checks `token_expires_at`. Strava access tokens only last about 6 hours, so an expired token is refreshed with the `refresh_token` grant and the new pair is saved back to `users`.
+- It walks `/athlete/activities` 200 per page, which is Strava's maximum, until it gets a short page.
+- Each activity's `summary_polyline` (Google's encoded polyline format) is decoded with `@mapbox/polyline`. The `[lat, lng]` pairs are flipped to `[lng, lat]` for PostGIS/GeoJSON, and activities without GPS, such as treadmill runs, are skipped.
+- Rows go to the `upsert_activities` Postgres function ([`sql/05`](sql/05_function_upsert_activities.sql)). It builds a `LINESTRING` geometry with `ST_MakeLine` and upserts on `strava_id`, so re-syncing is idempotent.
+- Users could also re-run this on demand from **Settings → Re-sync Strava**.
+
+### 3. Real-time updates: `api/webhook`
+
+- **Subscription:** a single app-wide subscription registered with Strava's `push_subscriptions` endpoint (see [Strava Webhook](#strava-webhook-production-only)). Strava checks the endpoint with a `GET` carrying `hub.challenge`, which the route echoes back if `hub.verify_token` matches `STRAVA_WEBHOOK_VERIFY_TOKEN`.
+- **Events:** Strava `POST`s a small event with the activity id, athlete id and `create`/`update`/`delete`. The route maps the athlete to a SleeveMap user, then either fetches the full activity and upserts it or deletes the row.
+- The route always returns `200` quickly. Strava retries anything else, and a failure on one activity shouldn't cause a retry storm.
+
+### Reading the data back
+
+Nothing on the map side talks to Strava. The `get_activities_geojson` and `get_public_activities_geojson` SQL functions ([`sql/06`](sql/06_function_get_activities_geojson.sql), [`sql/07`](sql/07_function_get_public_activities_geojson.sql)) read activity geometry straight from PostGIS. The API routes (`/api/activities`, `/api/profiles/[username]`) turn it into a GeoJSON `FeatureCollection`, and Mapbox GL renders it on the map, profile and planner pages. Because of that split, turning the integration off only stops *new* data; existing data is unaffected.
+
+### How it's disabled
+
+A single flag, `STRAVA_ENABLED` in [`my-app/app/lib/strava.ts`](my-app/app/lib/strava.ts), gates everything:
+
+| Piece | Behaviour when disabled |
+|---|---|
+| `/api/auth/strava`, `/api/auth/callback` | Redirect to `/?error=strava_disabled` |
+| `/api/sync` | `503` with an explanation |
+| `/api/webhook` (POST) | Returns `200` and ignores the event |
+| Navbar / home "Connect with Strava" | Shown greyed out with an explanatory tooltip |
+| Settings "Re-sync Strava" | Button disabled, description explains why |
+| Site-wide | One-time notice popup explaining the change |
+
+Signed-in users keep their existing session cookie, so they can still view their own private map and use the planner.
 
 ---
 

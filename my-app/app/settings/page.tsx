@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import Navbar from '../components/Navbar'
-import { STRAVA_ENABLED } from '../lib/strava'
+import { STRAVA_SYNC_ENABLED } from '../lib/strava'
 
 interface UserProfile {
   id: string
@@ -397,24 +397,24 @@ export default function SettingsPage() {
 
           <Row
             label="Re-sync Strava"
-            description={STRAVA_ENABLED
+            description={STRAVA_SYNC_ENABLED
               ? "Fetch all activities again from Strava. Useful if activities are missing or you've logged new ones on another device."
               : 'Unavailable — Strava now charges for API access. Your previously synced activities are still shown on your map.'}
           >
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '0.4rem' }}>
               <button
                 onClick={triggerSync}
-                disabled={syncing || !STRAVA_ENABLED}
+                disabled={syncing || !STRAVA_SYNC_ENABLED}
                 style={{
                   fontSize: '0.6rem', letterSpacing: '0.1em', textTransform: 'uppercase',
                   padding: '0.4rem 0.9rem', border: '1px solid var(--border)',
                   background: 'transparent',
-                  color: !STRAVA_ENABLED ? 'var(--disabled-fg)' : syncing ? 'var(--muted)' : 'var(--text)',
-                  cursor: !STRAVA_ENABLED ? 'not-allowed' : syncing ? 'default' : 'pointer',
+                  color: !STRAVA_SYNC_ENABLED ? 'var(--disabled-fg)' : syncing ? 'var(--muted)' : 'var(--text)',
+                  cursor: !STRAVA_SYNC_ENABLED ? 'not-allowed' : syncing ? 'default' : 'pointer',
                   fontFamily: FONT, fontWeight: 600,
                 }}
               >
-                {!STRAVA_ENABLED ? 'Sync disabled' : syncing ? 'Syncing...' : 'Sync now'}
+                {!STRAVA_SYNC_ENABLED ? 'Sync disabled' : syncing ? 'Syncing...' : 'Sync now'}
               </button>
               {syncResult && (
                 <span style={{ fontSize: '0.62rem', color: 'var(--muted)', letterSpacing: '0.04em' }}>

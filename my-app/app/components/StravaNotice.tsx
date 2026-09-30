@@ -3,7 +3,7 @@
 import { useEffect, useState, useSyncExternalStore } from 'react'
 
 // Bump this if the notice text changes and everyone should see it again.
-const STORAGE_KEY = 'strava-api-notice-ack-v1'
+const STORAGE_KEY = 'strava-api-notice-ack-v2'
 
 function subscribe(onChange: () => void) {
   window.addEventListener('storage', onChange)
@@ -82,8 +82,11 @@ export default function StravaNotice() {
         <p style={{ fontSize: '0.8rem', lineHeight: 1.8, color: 'var(--muted)', marginBottom: '1rem' }}>
           Strava now charges for access to its API, so SleeveMap can no longer sync new activities or receive webhook updates.
         </p>
-        <p style={{ fontSize: '0.8rem', lineHeight: 1.8, color: 'var(--muted)', marginBottom: '1.75rem' }}>
+        <p style={{ fontSize: '0.8rem', lineHeight: 1.8, color: 'var(--muted)', marginBottom: '1rem' }}>
           You can still explore every activity synced before the change — your maps, profiles and route planner all keep working with that data.
+        </p>
+        <p style={{ fontSize: '0.8rem', lineHeight: 1.8, color: 'var(--muted)', marginBottom: '1.75rem' }}>
+          Sign in with Strava still works, so you can view your map or delete your data from Settings at any time.
         </p>
         <button
           onClick={acknowledge}

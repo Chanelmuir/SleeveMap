@@ -4,8 +4,8 @@ A full-stack activity mapping platform built on the Strava API. Connect your Str
 
 ![SleeveMap](my-app/public/example_map.png)
 
-> **Project status — Strava integration disabled.**
-> Strava now charges for API access, so sign-in with Strava, activity sync and webhook ingestion have been switched off. Everything synced before the change is still live: public maps, the Explorer and the route planner all work from the existing database. The integration code is intact and documented below in [How the Strava integration worked](#how-the-strava-integration-worked). It can be re-enabled by setting `STRAVA_ENABLED = true` in [`my-app/app/lib/strava.ts`](my-app/app/lib/strava.ts).
+> **Project status — Strava sync disabled.**
+> Strava now charges for API access, so activity sync and webhook ingestion have been switched off. Everything synced before the change is still live: public maps, the Explorer and the route planner all work from the existing database. Sign-in with Strava still works, so users can view their map or delete their data from Settings. The sync code is intact and documented below in [How the Strava integration worked](#how-the-strava-integration-worked). It can be re-enabled by setting `STRAVA_SYNC_ENABLED = true` in [`my-app/app/lib/strava.ts`](my-app/app/lib/strava.ts).
 
 ---
 
@@ -37,7 +37,7 @@ A full-stack activity mapping platform built on the Strava API. Connect your Str
 
 ## How the Strava integration worked
 
-The Strava side of SleeveMap had three parts: OAuth sign-in, a one-off full history sync, and a webhook for real-time updates. All three wrote into the same PostGIS `activities` table, and every map, profile and planner overlay reads from that table. That's why the site keeps working after the integration was switched off.
+The Strava side of SleeveMap had three parts: OAuth sign-in, a one-off full history sync, and a webhook for real-time updates. Sync and the webhook both wrote into the same PostGIS `activities` table, and every map, profile and planner overlay reads from that table. That's why the site keeps working with sync switched off.
 
 ```mermaid
 sequenceDiagram
@@ -106,18 +106,17 @@ Nothing on the map side talks to Strava. The `get_activities_geojson` and `get_p
 
 ### How it's disabled
 
-A single flag, `STRAVA_ENABLED` in [`my-app/app/lib/strava.ts`](my-app/app/lib/strava.ts), gates everything:
+A single flag, `STRAVA_SYNC_ENABLED` in [`my-app/app/lib/strava.ts`](my-app/app/lib/strava.ts), gates the parts that pull activity data. **Sign-in with Strava deliberately stays on.** It's the only way to authenticate, so it's how users reach Settings to view their map or delete their account and all synced activities.
 
-| Piece | Behaviour when disabled |
+| Piece | Behaviour when sync is disabled |
 |---|---|
-| `/api/auth/strava`, `/api/auth/callback` | Redirect to `/?error=strava_disabled` |
+| `/api/auth/strava`, `/api/auth/callback` | **Still work.** Sign-in completes as normal, but the first-login history import is skipped |
 | `/api/sync` | `503` with an explanation |
 | `/api/webhook` (POST) | Returns `200` and ignores the event |
-| Navbar / home "Connect with Strava" | Shown greyed out with an explanatory tooltip |
+| Navbar / home button | Relabelled "Sign in with Strava"; home page also links to the Explorer |
 | Settings "Re-sync Strava" | Button disabled, description explains why |
+| Settings "Delete account" | Unchanged, removes the user and all their activities |
 | Site-wide | One-time notice popup explaining the change |
-
-Signed-in users keep their existing session cookie, so they can still view their own private map and use the planner.
 
 ---
 

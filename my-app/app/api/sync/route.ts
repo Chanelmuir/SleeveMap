@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import polyline from '@mapbox/polyline'
-import { STRAVA_ENABLED, STRAVA_DISABLED_MESSAGE } from '@/app/lib/strava'
+import { STRAVA_SYNC_ENABLED, STRAVA_SYNC_DISABLED_MESSAGE } from '@/app/lib/strava'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -82,8 +82,8 @@ async function getValidToken(userId: string): Promise<string> {
 }
 
 export async function POST(req: NextRequest) {
-  if (!STRAVA_ENABLED) {
-    return NextResponse.json({ error: STRAVA_DISABLED_MESSAGE }, { status: 503 })
+  if (!STRAVA_SYNC_ENABLED) {
+    return NextResponse.json({ error: STRAVA_SYNC_DISABLED_MESSAGE }, { status: 503 })
   }
 
   const userId = req.cookies.get('user_id')?.value

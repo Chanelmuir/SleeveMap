@@ -66,7 +66,7 @@ export default function StravaNotice() {
           padding: '2rem', color: 'var(--text)',
         }}
       >
-        <p style={{ fontSize: '0.65rem', letterSpacing: '0.2em', color: 'var(--orange)', textTransform: 'uppercase', marginBottom: '1rem' }}>
+        <p style={{ fontSize: '0.65rem', letterSpacing: '0.2em', color: 'var(--sleeve-gold)', textTransform: 'uppercase', marginBottom: '1rem' }}>
           Heads up
         </p>
         <h2
@@ -92,7 +92,7 @@ export default function StravaNotice() {
           onClick={acknowledge}
           autoFocus
           style={{
-            width: '100%', background: 'var(--orange)', color: '#fff', border: 'none',
+            width: '100%', background: 'var(--sleeve-gold)', color: '#fff', border: 'none',
             fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 600,
             fontSize: '0.95rem', letterSpacing: '0.08em', textTransform: 'uppercase',
             padding: '0.85rem 2rem', borderRadius: '2px', cursor: 'pointer',

@@ -210,10 +210,11 @@ my-app/
         Navbar.tsx
         SyncOnLoad.tsx
       explore/          — Explorer page
-      legal/            — Privacy policy + terms
       map/              — Redirect to /u/[username]
       plan/             — Route planner
+      privacy/          — Privacy policy
       settings/         — Account settings
+      terms/            — Terms of use
       u/[username]/     — Public + private map page
       page.tsx          — Landing page
 ```

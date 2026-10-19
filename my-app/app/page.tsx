@@ -282,7 +282,7 @@ export default function HomePage() {
           Sleeve<span style={{ color: 'var(--sleeve-gold)' }}>Map</span>
         </Link>
         <div style={{ display: 'flex', gap: '2rem' }}>
-          {[['GitHub', 'https://github.com/Chanelmuir/Strava-Heatmap']].map(([label, href]) => (
+          {[['Privacy', '/privacy'], ['Terms', '/terms'], ['GitHub', 'https://github.com/Chanelmuir/Strava-Heatmap']].map(([label, href]) => (
             <Link key={label} href={href} style={{ color: 'var(--muted)', textDecoration: 'none' }}>{label}</Link>
           ))}
         </div>
